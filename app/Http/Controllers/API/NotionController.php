@@ -46,16 +46,34 @@ class NotionController extends Controller
         switch($type) {
             // database
             case 'db':
-                $filters = new Collection();
-                // $filters->add(Filter::rawFilter('Heading', ['rich_text' => ['contains' => 'He made it known by sending his angel to his servant John']]));
+                $field_name = $request->field;
+                $keyword = $request->keyword;
 
-                $result = Notion::database($id)
-                    // ->filterBy($filters)
-                    ->query()
-                    ->asCollection();
-                return response(['data' => $result]);
-                // $all = Notion::database('b36c1bbe9ec04799b12fd7b7d2f727aa')->query();
-                // return response(['data' => $all]);
+                if ($keyword) {
+                    $filters = new Collection();
+                    $filters->add(
+                        Filter::rawFilter(
+                            $field_name, 
+                            [
+                                'rich_text' => [
+                                    'contains' => $keyword
+                                ]
+                            ]
+                        )
+                    );
+    
+                    $result = Notion::database($id)
+                        ->filterBy($filters)
+                        ->query()
+                        ->asCollection();
+                    return response(['data' => $result]);
+                }
+                else {
+                    $result = Notion::database($id)
+                        ->query()
+                        ->asCollection();
+                    return response(['data' => $result]);
+                }
                 break;
 
             // block
