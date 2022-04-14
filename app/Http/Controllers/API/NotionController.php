@@ -46,10 +46,10 @@ class NotionController extends Controller
         switch($type) {
             // database
             case 'db':
-                $field_name = $request->field;
+                $field_name = $request->field_name;
                 $keyword = $request->keyword;
-
-                if ($keyword) {
+                
+                if ($field_name && $keyword) {
                     $filters = new Collection();
                     $filters->add(
                         Filter::rawFilter(
@@ -78,12 +78,19 @@ class NotionController extends Controller
 
             // block
             case 'block':
-                $block = Notion::block($id)
-                    // ->retrieve();
-                    ->children()
-                    ->asCollection();
-                    // ->asTextCollection();
-                return response(['data' => $block]);
+                $include_child = $request->include_child;
+                if ($include_child) {
+                    $blockContents = $this->getBlockIncludingChilds($id);
+                    return response(['data' => $blockContents]);
+                }
+                else {
+                    $block = Notion::block($id)
+                        // ->retrieve();
+                        ->children()
+                        ->asCollection();
+                        // ->asTextCollection();
+                    return response(['data' => $block]);
+                }
                 break;
 
             case 'page':
@@ -181,5 +188,32 @@ class NotionController extends Controller
         $newBlockEntity = new BlockEntity($blockRawResponse);
         $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
         return response(['message' => "DELETE testing!", 'success' => $updatedBlock]);
+    }
+
+    private function getBlockIncludingChilds($blockId)
+    {
+        $blocks = Notion::block($blockId)
+            ->children()
+            ->asCollection()
+            ->toArray();
+        
+        $contents = [];
+        
+        if (count($blocks)) {
+            $index = 0;
+            foreach ($blocks as $block) {
+                $contents[$index] = [
+                    "id" => $block->getId(),
+                    "plain_text" => $block->asText()
+                ];
+                
+                if ($block->hasChildren()) {
+                    $contents[$index]['children'] = $this->getBlockIncludingChilds($block->getId());
+                }
+                $index ++;
+            }
+        }
+
+        return $contents;
     }
 }

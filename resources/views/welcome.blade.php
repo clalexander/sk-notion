@@ -6,6 +6,8 @@
 
         <title>Laravel</title>
 
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -25,10 +27,67 @@
 
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
                 <div class="">
-                    <!-- <h1>{{  }}</h1> -->
-                    <?php dd($notion)  ?>
+                    <input type="text" id="field_name" placeholder="Field name">
+                    <input type="text" id="keyword" placeholder="Keyword">
+                    <button onClick="search()">Search</button>
+                </div>
+                <div class="">
+                    <input type="text" id="block_id" placeholder="Block ID">
+                    <button onClick="getFullContents()">Get Full Contents</button>
                 </div>
             </div>
         </div>
     </body>
+
+    <script type="text/javascript">
+        function search() {
+            var field_name = document.getElementById("field_name").value
+            var keyword = document.getElementById("keyword").value
+            var type = "db"
+            var db_id = "b36c1bbe9ec04799b12fd7b7d2f727aa"
+            var params = {
+                type: type,
+                id: db_id,
+                field_name: field_name,
+                keyword: keyword
+            }
+            var urlParams = new URLSearchParams(params).toString()
+            
+            $.ajax({
+                type: "GET",
+                url: "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
+            })
+        }
+
+        function getFullContents() {
+            var block_id = document.getElementById("block_id").value
+            var type = "block"
+            var params = {
+                type: type,
+                id: block_id,
+                include_child: true
+            }
+            var urlParams = new URLSearchParams(params).toString()
+            $.ajax({
+                type: "GET",
+                url: "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
+            })
+        }
+    </script>
 </html>
