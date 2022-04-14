@@ -241,7 +241,9 @@ class NotionController extends Controller
                     case "synced_block":
                         if (array_key_exists('synced_from', $block->getRawContent())) {
                             $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
+                            // $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
                             $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
+                            $contents[$index] = $contents[$index][0];
                         }
                         break;
 
