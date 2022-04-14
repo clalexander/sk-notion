@@ -86,8 +86,11 @@ class NotionController extends Controller
                 else {
                     $block = Notion::block($id)
                         // ->retrieve();
+                        // ->getRawContent()['page_id'];
+
                         ->children()
                         ->asCollection();
+
                         // ->asTextCollection();
                     return response(['data' => $block]);
                 }
@@ -190,8 +193,26 @@ class NotionController extends Controller
         return response(['message' => "DELETE testing!", 'success' => $updatedBlock]);
     }
 
-    private function getBlockIncludingChilds($blockId)
+    private function getBlockIncludingChilds($blockId, $contentType = null)
     {
+        if ($contentType) {
+            switch ($contentType) {
+                case 'page':
+                    $page = Notion::pages()->find($blockId);
+                    $pageContents = [
+                        'id' => $page->getId(),
+                        'type' => 'page',
+                        'plain_text' => $page->getTitle()
+                    ];
+                    return $pageContents;
+                    break;
+
+                case 'synced_block':
+                    $contents[$index] = $this->getBlockIncludingChilds($pageId, 'page');
+                    break;
+            }
+        }
+
         $blocks = Notion::block($blockId)
             ->children()
             ->asCollection()
@@ -202,14 +223,47 @@ class NotionController extends Controller
         if (count($blocks)) {
             $index = 0;
             foreach ($blocks as $block) {
-                $contents[$index] = [
-                    "id" => $block->getId(),
-                    "plain_text" => $block->asText()
-                ];
+                $contents[$index] = [];
+
+                switch($block->getType()) {
+                    case "link_to_page":
+                        if (array_key_exists('page_id', $block->getRawContent())) {
+                            $pageId = $block->getRawContent()['page_id'];
+                            $contents[$index] = $this->getBlockIncludingChilds($pageId, 'page');
+                        }
+                        else {
+                            $contents[$index]['id'] = $block->getId();
+                            $contents[$index]['type'] = $block->getType();
+                            $contents[$index]['plain_text'] = '';
+                        }
+                        break;
+
+                    case "synced_block":
+                        if (array_key_exists('synced_from', $block->getRawContent())) {
+                            $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
+                            $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
+                        }
+                        break;
+
+                    case "paragraph":
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+                        break;
+
+                    default: 
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+                        break;
+                }
                 
                 if ($block->hasChildren()) {
-                    $contents[$index]['children'] = $this->getBlockIncludingChilds($block->getId());
+                    if ($block->getType() != 'synced_block') {
+                        $contents[$index]['children'] = $this->getBlockIncludingChilds($block->getId());
+                    }
                 }
+
                 $index ++;
             }
         }
