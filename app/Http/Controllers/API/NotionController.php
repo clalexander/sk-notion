@@ -129,12 +129,9 @@ class NotionController extends Controller
 
             // block
             case 'block':
-                $paragraph = Paragraph::create('New TextBlock By API');
-                Notion::block($id)->append($paragraph);
-
-                // $block = Notion::block($id)
-                //     ->children()
-                //     ->asCollection();
+                $contents = $request->contents;
+                $paragraph = Paragraph::create($contents);
+                $block = Notion::block($id)->append($paragraph);
                 return response(['data' => $block]);
                 break;
 
@@ -145,7 +142,7 @@ class NotionController extends Controller
                 break;
         }
 
-        return response(['test' => "YAY!", 'data' => $request->all()]);
+        return response(['test' => "store", 'data' => $request->all()]);
     }
 
     /**
