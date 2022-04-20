@@ -31,20 +31,36 @@
                     <input type="text" id="keyword" placeholder="Keyword">
                     <button onClick="search()">Search</button>
                 </div>
+                <hr>
                 <div class="">
                     <input type="text" id="block_id" placeholder="Block ID">
                     <button onClick="getFullContents()">Get Full Contents</button>
                 </div>
+                <hr>
                 <div class="">
                     <input type="text" id="block_id2" placeholder="Block ID">
                     <input type="text" id="txt_contents" placeholder="Text Contents">
                     <button onClick="appendContents()">Append</button>
+                </div>
+                <hr>
+                <div class="">
+                    <input type="text" id="db_id" placeholder="Database ID">
+                    <textarea id="page_options" placeholder="Page Options"></textarea>
+                    <button onClick="insertPageToDB()">Insert</button>
                 </div>
             </div>
         </div>
     </body>
 
     <script type="text/javascript">
+        var page_json = {
+            "Heading": "",
+            "Passage": "",
+            // "Book": ""
+        }
+        var page_json_txt = JSON.stringify(page_json)
+        document.getElementById("page_options").value = page_json_txt
+
         function search() {
             var field_name = document.getElementById("field_name").value
             var keyword = document.getElementById("keyword").value
@@ -129,6 +145,32 @@
                 async: false,
             }).done(function(data) {
                 console.log(data)
+            })
+        }
+
+        function insertPageToDB() {
+            var db_id = document.getElementById("db_id").value
+            var options = JSON.parse(document.getElementById("page_options").value)
+            var type = "db"
+            var params = {
+                type: type,
+                id: db_id,
+                options: options
+            }
+            $.ajax({
+                type: "POST",
+                url: "/api/notion",
+                beforeSend: function (xhr) {
+                    // dev
+                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
+
+                    // live
+                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                data: JSON.stringify(params),
+                async: false,
             })
         }
     </script>

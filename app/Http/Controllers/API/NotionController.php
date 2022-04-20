@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use FiveamCode\LaravelNotionApi\Query\Filters\Filter;
 use FiveamCode\LaravelNotionApi\Query\Sorting;
 
+use FiveamCode\LaravelNotionApi\Entities\Page;
 use FiveamCode\LaravelNotionApi\Entities\Blocks\Block;
 use FiveamCode\LaravelNotionApi\Entities\Blocks\BulletedListItem;
 use FiveamCode\LaravelNotionApi\Entities\Blocks\Embed;
@@ -122,9 +123,16 @@ class NotionController extends Controller
         switch($type) {
             // database
             case 'db':
-                $paragraph = Paragraph::create('New TextBlock By API');
-                Notion::block($id)->append($paragraph);
-                return response(['success' => "true"]);
+                $pageOptions = $request->options;
+                // add new page to db
+                $page = new Page();
+
+                $page->setTitle("﻿Heading", $pageOptions["Heading"]);
+                $page->setText("Passage", $pageOptions["Passage"]);
+
+                Notion::pages()->createInDatabase($id, $page);
+                
+                return response(['success' => $page]);
                 break;
 
             // block
@@ -190,6 +198,9 @@ class NotionController extends Controller
         return response(['message' => "DELETE testing!", 'success' => $updatedBlock]);
     }
 
+    /**
+     * Get Full Contents (recursive call)
+     */
     private function getBlockIncludingChilds($blockId, $contentType = null)
     {
         if ($contentType) {
