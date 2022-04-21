@@ -56,7 +56,16 @@
         var page_json = {
             "Heading": "",
             "Passage": "",
-            // "Book": ""
+            "Book": "",
+            "Type": "",
+            "Keywords": "",
+            "VideoURL": "",
+            "VideoTitle": "",
+            "VideoTime": "",
+            "RelatedVerses": "",
+            "BeginWord": "",
+            "Status": "",
+            "NoteOrder": ""
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt

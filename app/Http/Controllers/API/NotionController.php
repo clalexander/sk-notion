@@ -127,8 +127,42 @@ class NotionController extends Controller
                 // add new page to db
                 $page = new Page();
 
-                $page->setTitle("﻿Heading", $pageOptions["Heading"]);
-                $page->setText("Passage", $pageOptions["Passage"]);
+                if (array_key_exists("Heading", $pageOptions) && $pageOptions["Heading"]) {
+                    $page->setTitle("﻿Heading", $pageOptions["Heading"]);
+                }
+                if (array_key_exists("Passage", $pageOptions) && $pageOptions["Passage"]) {
+                    $page->setText("Passage", $pageOptions["Passage"]);
+                }
+                if (array_key_exists("Book", $pageOptions) && $pageOptions["Book"]) {
+                    $page->setSelect("Book", $pageOptions["Book"]);
+                }
+                if (array_key_exists("Type", $pageOptions) && $pageOptions["Type"]) {
+                    $page->setText("Type", $pageOptions["Type"]);
+                }
+                if (array_key_exists("Keywords", $pageOptions) && $pageOptions["Keywords"]) {
+                    $page->setText("Keywords", $pageOptions["Keywords"]);
+                }
+                if (array_key_exists("VideoURL", $pageOptions) && $pageOptions["VideoURL"]) {
+                    $page->setSelect("VideoURL", $pageOptions["VideoURL"]);
+                }
+                if (array_key_exists("VideoTitle", $pageOptions) && $pageOptions["VideoTitle"]) {
+                    $page->setSelect("VideoTitle", $pageOptions["VideoTitle"]);
+                }
+                if (array_key_exists("VideoTime", $pageOptions) && $pageOptions["VideoTime"]) {
+                    $page->setText("VideoTime", $pageOptions["VideoTime"]);
+                }
+                if (array_key_exists("RelatedVerses", $pageOptions) && $pageOptions["RelatedVerses"]) {
+                    $page->setText("RelatedVerses", $pageOptions["RelatedVerses"]);
+                }
+                if (array_key_exists("BeginWord", $pageOptions) && $pageOptions["BeginWord"]) {
+                    $page->setNumber("BeginWord", $pageOptions["BeginWord"]);
+                }
+                if (array_key_exists("Status", $pageOptions) && $pageOptions["Status"]) {
+                    $page->setSelect("Status", $pageOptions["Status"]);
+                }
+                if (array_key_exists("NoteOrder", $pageOptions) && $pageOptions["NoteOrder"]) {
+                    $page->setNumber("NoteOrder", $pageOptions["NoteOrder"]);
+                }
 
                 Notion::pages()->createInDatabase($id, $page);
                 
