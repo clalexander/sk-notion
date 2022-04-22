@@ -39,8 +39,6 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
-        // $notion = new Notion("secret_uSs7fTGZXxIz2OGqklQnc8ACCxFP9iVraeroXI0Laao");
-
         $type = $request->type;
         $id = $request->id;
 
@@ -130,38 +128,44 @@ class NotionController extends Controller
                 if (array_key_exists("Heading", $pageOptions) && $pageOptions["Heading"]) {
                     $page->setTitle("﻿Heading", $pageOptions["Heading"]);
                 }
-                if (array_key_exists("Passage", $pageOptions) && $pageOptions["Passage"]) {
-                    $page->setText("Passage", $pageOptions["Passage"]);
+                if (array_key_exists("Keywords", $pageOptions) && $pageOptions["Keywords"]) {
+                    $page->setText("Keywords", $pageOptions["Keywords"]);
+                }
+                if (array_key_exists("BibleVersion", $pageOptions) && $pageOptions["BibleVersion"]) {
+                    $page->setMultiSelect("BibleVersion", $pageOptions["BibleVersion"]);
                 }
                 if (array_key_exists("Book", $pageOptions) && $pageOptions["Book"]) {
                     $page->setSelect("Book", $pageOptions["Book"]);
                 }
-                if (array_key_exists("Type", $pageOptions) && $pageOptions["Type"]) {
-                    $page->setText("Type", $pageOptions["Type"]);
+                if (array_key_exists("Passage", $pageOptions) && $pageOptions["Passage"]) {
+                    $page->setText("Passage", $pageOptions["Passage"]);
                 }
-                if (array_key_exists("Keywords", $pageOptions) && $pageOptions["Keywords"]) {
-                    $page->setText("Keywords", $pageOptions["Keywords"]);
+                if (array_key_exists("RelatedPassage", $pageOptions) && $pageOptions["RelatedPassage"]) {
+                    $page->setText("RelatedPassage", $pageOptions["RelatedPassage"]);
+                }
+                if (array_key_exists("BeginWord", $pageOptions) && $pageOptions["BeginWord"]) {
+                    $page->setText("BeginWord", $pageOptions["BeginWord"]);
+                }
+                if (array_key_exists("Reference", $pageOptions) && $pageOptions["Reference"]) {
+                    $page->setText("Reference", $pageOptions["Reference"]);
+                }
+                if (array_key_exists("Category", $pageOptions) && $pageOptions["Category"]) {
+                    $page->setMultiSelect("Category", $pageOptions["Category"]);
                 }
                 if (array_key_exists("VideoURL", $pageOptions) && $pageOptions["VideoURL"]) {
-                    $page->setSelect("VideoURL", $pageOptions["VideoURL"]);
+                    $page->setText("VideoURL", $pageOptions["VideoURL"]);
                 }
                 if (array_key_exists("VideoTitle", $pageOptions) && $pageOptions["VideoTitle"]) {
-                    $page->setSelect("VideoTitle", $pageOptions["VideoTitle"]);
+                    $page->setText("VideoTitle", $pageOptions["VideoTitle"]);
                 }
                 if (array_key_exists("VideoTime", $pageOptions) && $pageOptions["VideoTime"]) {
                     $page->setText("VideoTime", $pageOptions["VideoTime"]);
-                }
-                if (array_key_exists("RelatedVerses", $pageOptions) && $pageOptions["RelatedVerses"]) {
-                    $page->setText("RelatedVerses", $pageOptions["RelatedVerses"]);
-                }
-                if (array_key_exists("BeginWord", $pageOptions) && $pageOptions["BeginWord"]) {
-                    $page->setNumber("BeginWord", $pageOptions["BeginWord"]);
                 }
                 if (array_key_exists("Status", $pageOptions) && $pageOptions["Status"]) {
                     $page->setSelect("Status", $pageOptions["Status"]);
                 }
                 if (array_key_exists("NoteOrder", $pageOptions) && $pageOptions["NoteOrder"]) {
-                    $page->setNumber("NoteOrder", $pageOptions["NoteOrder"]);
+                    $page->setText("NoteOrder", $pageOptions["NoteOrder"]);
                 }
 
                 Notion::pages()->createInDatabase($id, $page);

@@ -55,17 +55,19 @@
     <script type="text/javascript">
         var page_json = {
             "Heading": "",
-            "Passage": "",
-            "Book": "",
-            "Type": "",
             "Keywords": "",
+            "BibleVersion": [""],
+            "Book": "",
+            "Passage": "",
+            "RelatedPassage": "",
+            "BeginWord": "",
+            "Reference": "",
+            "Category": [""],
             "VideoURL": "",
             "VideoTitle": "",
             "VideoTime": "",
-            "RelatedVerses": "",
-            "BeginWord": "",
             "Status": "",
-            "NoteOrder": ""
+            "NoteOrder": "",
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt
