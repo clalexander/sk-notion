@@ -56,12 +56,19 @@
         var page_json = {
             "Heading": "",
             "Keywords": "",
-            "BibleVersion": [""],
             "Book": "",
             "Passage": "",
             "RelatedPassage": "",
             "BeginWord": "",
+            "EndWord": "",
+            "TextualBase": "",
             "Reference": "",
+
+            "StartPage": "",
+            "StartParagraph": "",
+            "EndPage": "",
+            "EndParagraph": "",
+
             "Category": [""],
             "VideoURL": "",
             "VideoTitle": "",

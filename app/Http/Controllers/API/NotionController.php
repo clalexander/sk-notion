@@ -131,9 +131,6 @@ class NotionController extends Controller
                 if (array_key_exists("Keywords", $pageOptions) && $pageOptions["Keywords"]) {
                     $page->setText("Keywords", $pageOptions["Keywords"]);
                 }
-                if (array_key_exists("BibleVersion", $pageOptions) && $pageOptions["BibleVersion"]) {
-                    $page->setMultiSelect("BibleVersion", $pageOptions["BibleVersion"]);
-                }
                 if (array_key_exists("Book", $pageOptions) && $pageOptions["Book"]) {
                     $page->setSelect("Book", $pageOptions["Book"]);
                 }
@@ -146,8 +143,26 @@ class NotionController extends Controller
                 if (array_key_exists("BeginWord", $pageOptions) && $pageOptions["BeginWord"]) {
                     $page->setText("BeginWord", $pageOptions["BeginWord"]);
                 }
+                if (array_key_exists("EndWord", $pageOptions) && $pageOptions["EndWord"]) {
+                    $page->setText("EndWord", $pageOptions["EndWord"]);
+                }
+                if (array_key_exists("TextualBase", $pageOptions) && $pageOptions["TextualBase"]) {
+                    $page->setText("TextualBase", $pageOptions["TextualBase"]);
+                }
                 if (array_key_exists("Reference", $pageOptions) && $pageOptions["Reference"]) {
                     $page->setText("Reference", $pageOptions["Reference"]);
+                }
+                if (array_key_exists("StartPage", $pageOptions) && $pageOptions["StartPage"]) {
+                    $page->setText("StartPage", $pageOptions["StartPage"]);
+                }
+                if (array_key_exists("StartParagraph", $pageOptions) && $pageOptions["StartParagraph"]) {
+                    $page->setText("StartParagraph", $pageOptions["StartParagraph"]);
+                }
+                if (array_key_exists("EndPage", $pageOptions) && $pageOptions["EndPage"]) {
+                    $page->setText("EndPage", $pageOptions["EndPage"]);
+                }
+                if (array_key_exists("EndParagraph", $pageOptions) && $pageOptions["EndParagraph"]) {
+                    $page->setText("EndParagraph", $pageOptions["EndParagraph"]);
                 }
                 if (array_key_exists("Category", $pageOptions) && $pageOptions["Category"]) {
                     $page->setMultiSelect("Category", $pageOptions["Category"]);
