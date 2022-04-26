@@ -167,6 +167,9 @@ class NotionController extends Controller
                 if (array_key_exists("NoteOrder", $pageOptions) && $pageOptions["NoteOrder"]) {
                     $page->setText("NoteOrder", $pageOptions["NoteOrder"]);
                 }
+                if (array_key_exists("Language", $pageOptions) && $pageOptions["Language"]) {
+                    $page->setSelect("Language", $pageOptions["Language"]);
+                }
 
                 Notion::pages()->createInDatabase($id, $page);
                 

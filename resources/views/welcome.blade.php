@@ -68,6 +68,7 @@
             "VideoTime": "",
             "Status": "",
             "NoteOrder": "",
+            "Language": ""
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt
