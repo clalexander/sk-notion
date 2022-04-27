@@ -165,7 +165,10 @@ class NotionController extends Controller
                     $page->setText("EndParagraph", $pageOptions["EndParagraph"]);
                 }
                 if (array_key_exists("Category", $pageOptions) && $pageOptions["Category"]) {
-                    $page->setMultiSelect("Category", $pageOptions["Category"]);
+                    $category = array_filter($pageOptions["Category"]);
+                    if (count($category) > 0) {
+                        $page->setMultiSelect("Category", $pageOptions["Category"]);
+                    }
                 }
                 if (array_key_exists("VideoURL", $pageOptions) && $pageOptions["VideoURL"]) {
                     $page->setText("VideoURL", $pageOptions["VideoURL"]);
@@ -186,9 +189,9 @@ class NotionController extends Controller
                     $page->setSelect("Language", $pageOptions["Language"]);
                 }
 
-                Notion::pages()->createInDatabase($id, $page);
+                $result = Notion::pages()->createInDatabase($id, $page);
                 
-                return response(['success' => $page]);
+                return response(['page' => $page, 'result' => $result]);
                 break;
 
             // block
