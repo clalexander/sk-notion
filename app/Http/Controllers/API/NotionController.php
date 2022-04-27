@@ -197,9 +197,52 @@ class NotionController extends Controller
             // block
             case 'block':
                 $contents = $request->contents;
-                $paragraph = Paragraph::create($contents);
-                $block = Notion::block($id)->append($paragraph);
-                return response(['data' => $block]);
+                if (empty($contents)) {
+                    return response(['success' => false, 'message' => 'Contents cannot be null or empty.']);
+                }
+
+                $content_type = $request->content_type;
+
+                switch ($content_type) {
+                    case "Paragraph":
+                        $block = Paragraph::create($contents);
+                        break;
+
+                    case "BulletedListItem":
+                        $block = BulletedListItem::create($contents);
+                        break;
+
+                    case "HeadingOne":
+                        $block = HeadingOne::create($contents);
+                        break;
+
+                    case "HeadingTwo":
+                        $block = HeadingTwo::create($contents);
+                        break;
+
+                    case "HeadingThree":
+                        $block = HeadingThree::create($contents);
+                        break;
+
+                    case "NumberedListItem":
+                        $block = NumberedListItem::create($contents);
+                        break;
+
+                    case "ToDo":
+                        $block = ToDo::create($contents);
+                        break;
+
+                    // $toggle = Toggle::create(['New TextBlock', 'New TextBlock']);
+                    // $embed = Embed::create('https://5amco.de', 'Testcaption');
+                    // $image = Image::create('https://images.unsplash.com/photo-1593642533144-3d62aa4783ec?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb', 'Testcaption');
+                    // $file = File::create('https://images.unsplash.com/photo-1593642533144-3d62aa4783ec?ixlib=rb-1.2.1&q=85&fm=jpg&crop=entropy&cs=srgb', 'Testcaption');
+                    // $video = Video::create('https://www.w3schools.com/html/mov_bbb.mp4', 'TestCaption');
+                    // $pdf = Pdf::create('https://notion.so/testpdf.pdf', 'TestCaption');
+                }
+
+                $addedBlock = Notion::block($id)->append($block);
+
+                return response(['success' => true, 'block' => $addedBlock]);
                 break;
 
             case 'page':

@@ -39,6 +39,21 @@
                 <hr>
                 <div class="">
                     <input type="text" id="block_id2" placeholder="Block ID">
+                    <select id="content_type">
+                        <option value="Paragraph">Paragraph</option>
+                        <option value="BulletedListItem">BulletedListItem</option>
+                        <option value="HeadingOne">HeadingOne</option>
+                        <option value="HeadingTwo">HeadingTwo</option>
+                        <option value="HeadingThree">HeadingThree</option>
+                        <option value="NumberedListItem">NumberedListItem</option>
+                        <option value="ToDo">ToDo</option>
+                        <option value="Toggle" disabled>Toggle</option>
+                        <option value="Embed" disabled>Embed</option>
+                        <option value="Image" disabled>Image</option>
+                        <option value="File" disabled>File</option>
+                        <option value="Video" disabled>Video</option>
+                        <option value="Pdf" disabled>Pdf</option>
+                    </select>
                     <input type="text" id="txt_contents" placeholder="Text Contents">
                     <button onClick="appendContents()">Append</button>
                 </div>
@@ -141,13 +156,16 @@
         function appendContents() {
             var block_id = document.getElementById("block_id2").value
             var contents = document.getElementById("txt_contents").value
+            var content_type = document.getElementById("content_type").value
             var type = "block"
             var params = {
                 type: type,
                 id: block_id,
+                content_type: content_type,
                 contents: contents
             }
             console.log(params)
+            // return;
             $.ajax({
                 type: "POST",
                 url: "/api/notion",
