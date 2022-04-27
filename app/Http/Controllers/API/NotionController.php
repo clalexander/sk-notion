@@ -191,7 +191,7 @@ class NotionController extends Controller
 
                 $result = Notion::pages()->createInDatabase($id, $page);
                 
-                return response(['page' => $page, 'result' => $result]);
+                return response(['page_id' => $result->getId(), 'success' => true]);
                 break;
 
             // block
