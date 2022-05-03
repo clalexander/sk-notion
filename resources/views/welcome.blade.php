@@ -70,6 +70,8 @@
     <script type="text/javascript">
         var page_json = {
             "Heading": "",
+            "HeadingOrder": "",
+
             "Keywords": "",
             "Book": "",
             "Passage": "",

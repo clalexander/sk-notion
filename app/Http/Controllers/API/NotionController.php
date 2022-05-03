@@ -128,6 +128,9 @@ class NotionController extends Controller
                 if (array_key_exists("Heading", $pageOptions) && $pageOptions["Heading"]) {
                     $page->setTitle("﻿Heading", $pageOptions["Heading"]);
                 }
+                if (array_key_exists("HeadingOrder", $pageOptions) && $pageOptions["HeadingOrder"]) {
+                    $page->setText("HeadingOrder", $pageOptions["HeadingOrder"]);
+                }
                 if (array_key_exists("Keywords", $pageOptions) && $pageOptions["Keywords"]) {
                     $page->setText("Keywords", $pageOptions["Keywords"]);
                 }
