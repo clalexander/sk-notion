@@ -63,6 +63,13 @@
                     <textarea id="page_options" placeholder="Page Options"></textarea>
                     <button onClick="insertPageToDB()">Insert</button>
                 </div>
+                <hr>
+                <div class="">
+                    <input type="text" id="page_id" placeholder="Page ID">
+                    <input type="text" id="property_name" placeholder="Property Name">
+                    <input type="text" id="property_value" placeholder="Property Value">
+                    <button onClick="updatePageProperty()">Update</button>
+                </div>
             </div>
         </div>
     </body>
@@ -92,7 +99,8 @@
             "VideoTime": "",
             "Status": "",
             "NoteOrder": "",
-            "Language": ""
+            "Language": "",
+            "BCV": ""
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt
@@ -199,6 +207,34 @@
             $.ajax({
                 type: "POST",
                 url: "/api/notion",
+                beforeSend: function (xhr) {
+                    // dev
+                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
+
+                    // live
+                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                data: JSON.stringify(params),
+                async: false,
+            })
+        }
+
+        function updatePageProperty() {var db_id = document.getElementById("db_id").value
+            var page_id = document.getElementById("page_id").value
+            var property_name = document.getElementById("property_name").value
+            var property_value = document.getElementById("property_value").value
+            var type = "page"
+            var params = {
+                type: type,
+                id: page_id,
+                property_name: property_name,
+                property_value: property_value
+            }
+            $.ajax({
+                type: "PUT",
+                url: "/api/notion/" + page_id,
                 beforeSend: function (xhr) {
                     // dev
                     // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');

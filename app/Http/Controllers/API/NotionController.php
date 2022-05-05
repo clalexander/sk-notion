@@ -191,6 +191,9 @@ class NotionController extends Controller
                 if (array_key_exists("Language", $pageOptions) && $pageOptions["Language"]) {
                     $page->setSelect("Language", $pageOptions["Language"]);
                 }
+                if (array_key_exists("BCV", $pageOptions) && $pageOptions["BCV"]) {
+                    $page->setText("BCV", $pageOptions["BCV"]);
+                }
 
                 $result = Notion::pages()->createInDatabase($id, $page);
                 
@@ -278,12 +281,54 @@ class NotionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $blockRawResponse = Notion::block($id)->retrieve()->getRawResponse();
-        // update contents
+        $pageId = $id;
+        $property_name = $request->property_name;
+        $property_value = $request->property_value;
 
-        $newBlockEntity = new BlockEntity($blockRawResponse);
-        $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
-        return response(['message' => "DELETE testing!", 'success' => $updatedBlock]);
+        $page = new Page();
+        $page->setId($pageId);
+        
+        switch($property_name) {
+            case "Heading":
+                $page->setTitle("﻿Heading", $property_value);
+                break;
+
+            case "HeadingOrder":
+            case "Keywords":
+            case "Passage":
+            case "RelatedPassage":
+            case "BeginWord":
+            case "EndWord":
+            case "TextualBase":
+            case "Reference":
+            case "StartPage":
+            case "StartParagraph":
+            case "EndPage":
+            case "EndParagraph":
+            case "VideoURL":
+            case "VideoTitle":
+            case "VideoTime":
+            case "NoteOrder":
+            case "BCV":
+                $page->setText($property_name, $property_value);
+                break;
+
+            case "Book":
+            case "Status":
+            case "Language":
+                $page->setSelect($property_name, $property_value);
+                break;
+
+            case "Category":
+                $category = array_filter($property_value);
+                if (count($category) > 0) {
+                    $page->setMultiSelect($property_name, $property_value);
+                }
+                break;
+        }
+        $updatedPage = Notion::pages()->update($page);
+        return response(['page' => $updatedPage]);
+
     }
 
     /**
