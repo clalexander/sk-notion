@@ -100,7 +100,8 @@
             "Status": "",
             "NoteOrder": "",
             "Language": "",
-            "BCV": ""
+            "BCV1": "",
+            "BCV2": ""
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt

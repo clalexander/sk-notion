@@ -191,8 +191,11 @@ class NotionController extends Controller
                 if (array_key_exists("Language", $pageOptions) && $pageOptions["Language"]) {
                     $page->setSelect("Language", $pageOptions["Language"]);
                 }
-                if (array_key_exists("BCV", $pageOptions) && $pageOptions["BCV"]) {
-                    $page->setText("BCV", $pageOptions["BCV"]);
+                if (array_key_exists("BCV1", $pageOptions) && $pageOptions["BCV1"]) {
+                    $page->setText("BCV1", $pageOptions["BCV1"]);
+                }
+                if (array_key_exists("BCV2", $pageOptions) && $pageOptions["BCV2"]) {
+                    $page->setText("BCV2", $pageOptions["BCV2"]);
                 }
 
                 $result = Notion::pages()->createInDatabase($id, $page);
@@ -309,7 +312,8 @@ class NotionController extends Controller
             case "VideoTitle":
             case "VideoTime":
             case "NoteOrder":
-            case "BCV":
+            case "BCV1":
+            case "BCV2":
                 $page->setText($property_name, $property_value);
                 break;
 
