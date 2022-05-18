@@ -287,52 +287,56 @@ class NotionController extends Controller
         $pageId = $id;
         $property_name = $request->property_name;
         $property_value = $request->property_value;
-
-        $page = new Page();
-        $page->setId($pageId);
         
-        switch($property_name) {
-            case "Heading":
-                $page->setTitle("﻿Heading", $property_value);
-                break;
+        if ($property_value) {
+            $page = new Page();
+            $page->setId($pageId);
 
-            case "HeadingOrder":
-            case "Keywords":
-            case "Passage":
-            case "RelatedPassage":
-            case "BeginWord":
-            case "EndWord":
-            case "TextualBase":
-            case "Reference":
-            case "StartPage":
-            case "StartParagraph":
-            case "EndPage":
-            case "EndParagraph":
-            case "VideoURL":
-            case "VideoTitle":
-            case "VideoTime":
-            case "NoteOrder":
-            case "BCV1":
-            case "BCV2":
-                $page->setText($property_name, $property_value);
-                break;
+            switch($property_name) {
+                case "Heading":
+                        $page->setTitle("﻿Heading", $property_value);
+                    break;
 
-            case "Book":
-            case "Status":
-            case "Language":
-                $page->setSelect($property_name, $property_value);
-                break;
+                case "HeadingOrder":
+                case "Keywords":
+                case "Passage":
+                case "RelatedPassage":
+                case "BeginWord":
+                case "EndWord":
+                case "TextualBase":
+                case "Reference":
+                case "StartPage":
+                case "StartParagraph":
+                case "EndPage":
+                case "EndParagraph":
+                case "VideoURL":
+                case "VideoTitle":
+                case "VideoTime":
+                case "NoteOrder":
+                case "BCV1":
+                case "BCV2":
+                    $page->setText($property_name, $property_value);
+                    break;
 
-            case "Category":
-                $category = array_filter($property_value);
-                if (count($category) > 0) {
-                    $page->setMultiSelect($property_name, $property_value);
-                }
-                break;
+                case "Book":
+                case "Status":
+                case "Language":
+                    $page->setSelect($property_name, $property_value);
+                    break;
+
+                case "Category":
+                    $category = array_filter($property_value);
+                    if (count($category) > 0) {
+                        $page->setMultiSelect($property_name, $property_value);
+                    }
+                    break;
+            }
+
+            $updatedPage = Notion::pages()->update($page);
+            return response(['page' => $updatedPage]);
         }
-        $updatedPage = Notion::pages()->update($page);
-        return response(['page' => $updatedPage]);
-
+        
+        return response(['success'=> false,"message"=>'Property Value cannot be null']);
     }
 
     /**
