@@ -50,16 +50,117 @@ class NotionController extends Controller
                 
                 if ($field_name && $keyword) {
                     $filters = new Collection();
-                    $filters->add(
-                        Filter::rawFilter(
-                            $field_name, 
-                            [
-                                'rich_text' => [
-                                    'contains' => $keyword
-                                ]
-                            ]
-                        )
-                    );
+
+                    switch($field_name) {
+                        case "Book":
+                        case "Status":
+                        case "Language":
+                            $filters->add(
+                                Filter::rawFilter(
+                                    $field_name, 
+                                    [
+                                        'select' => [
+                                            'equals' => $keyword
+                                        ]
+                                    ]
+                                )
+                            );
+                            // select
+                            break;
+
+                        case "Category":
+                            // multi-select
+                            $filters->add(
+                                Filter::rawFilter(
+                                    $field_name, 
+                                    [
+                                        'multi_select' => [
+                                            'contains' => $keyword
+                                        ]
+                                    ]
+                                )
+                            );
+                            break;
+
+                        default:
+                            $filters->add(
+                                Filter::rawFilter(
+                                    $field_name, 
+                                    [
+                                        'rich_text' => [
+                                            'contains' => $keyword
+                                        ]
+                                    ]
+                                )
+                            );
+                    }
+    
+                    $result = Notion::database($id)
+                        ->filterBy($filters)
+                        ->query()
+                        ->asCollection();
+                    return response(['data' => $result]);
+                }
+                else {
+                    $result = Notion::database($id)
+                        ->query()
+                        ->asCollection();
+                    return response(['data' => $result]);
+                }
+                break;
+
+            case "multi_filters":
+                $filter_str = $request->filters;
+                
+                if ($filter_str) {
+                    $filter_options = json_decode($filter_str);
+                    $filters = new Collection();
+                    foreach($filter_options as $key => $value) {
+                        switch($key) {
+                            case "Book":
+                            case "Status":
+                            case "Language":
+                                $filters->add(
+                                    Filter::rawFilter(
+                                        $key, 
+                                        [
+                                            'select' => [
+                                                'equals' => $value
+                                            ]
+                                        ]
+                                    )
+                                );
+                                // select
+                                break;
+    
+                            case "Category":
+                                // multi-select
+                                $filters->add(
+                                    Filter::rawFilter(
+                                        $key, 
+                                        [
+                                            'multi_select' => [
+                                                'contains' => $value
+                                            ]
+                                        ]
+                                    )
+                                );
+                                break;
+    
+                            default:
+                                $filters->add(
+                                    Filter::rawFilter(
+                                        $key, 
+                                        [
+                                            'rich_text' => [
+                                                'contains' => $value
+                                            ]
+                                        ]
+                                    )
+                                );
+                                break;
+                        }
+                    }
     
                     $result = Notion::database($id)
                         ->filterBy($filters)

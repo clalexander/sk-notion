@@ -20,24 +20,41 @@
             body {
                 font-family: 'Nunito';
             }
+            .section {
+                border-bottom: 1px solid;
+            }
+            .section-header {
+                margin: 0;
+                margin-bottom: .5px;
+            }
         </style>
     </head>
     <body class="antialiased">
         <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
 
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-                <div class="">
+                <div class="section">
+                    <p class="section-header">Single-filters</p>
                     <input type="text" id="field_name" placeholder="Field name">
                     <input type="text" id="keyword" placeholder="Keyword">
                     <button onClick="search()">Search</button>
                 </div>
                 <hr>
-                <div class="">
+                <div class="section">
+                    <p class="section-header">Multi-filters</p>
+                    <input type="text" id="mt_db_id" placeholder="Database ID">
+                    <textarea id="mt_page_options" placeholder="{'property_name1': 'property_value1', 'property_name2': 'property_value2'}"></textarea>
+                    <button onClick="filterByMultiple()">Filter</button>
+                </div>
+                <hr>
+                <div class="section">
+                    <p class="section-header">GET Full Block Contents</p>
                     <input type="text" id="block_id" placeholder="Block ID">
                     <button onClick="getFullContents()">Get Full Contents</button>
                 </div>
                 <hr>
-                <div class="">
+                <div class="section">
+                    <p class="section-header">Append contents to Block</p>
                     <input type="text" id="block_id2" placeholder="Block ID">
                     <select id="content_type">
                         <option value="Paragraph">Paragraph</option>
@@ -58,13 +75,15 @@
                     <button onClick="appendContents()">Append</button>
                 </div>
                 <hr>
-                <div class="">
+                <div class="section">
+                    <p class="section-header">Insert page to DB</p>
                     <input type="text" id="db_id" placeholder="Database ID">
                     <textarea id="page_options" placeholder="Page Options"></textarea>
                     <button onClick="insertPageToDB()">Insert</button>
                 </div>
                 <hr>
-                <div class="">
+                <div class="section">
+                    <p class="section-header">Update page property</p>
                     <input type="text" id="page_id" placeholder="Page ID">
                     <input type="text" id="property_name" placeholder="Property Name">
                     <input type="text" id="property_value" placeholder="Property Value">
@@ -75,6 +94,14 @@
     </body>
 
     <script type="text/javascript">
+        const prod_token = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ'
+        const local_token = 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE'
+        
+        var token = prod_token
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            token = local_token
+        }
+
         var page_json = {
             "Heading": "",
             "HeadingOrder": "",
@@ -105,6 +132,7 @@
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt
+        
 
         function search() {
             var field_name = document.getElementById("field_name").value
@@ -123,11 +151,7 @@
                 type: "GET",
                 url: "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
-                    // dev
-                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
-
-                    // live
-                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                    xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
@@ -150,11 +174,7 @@
                 type: "GET",
                 url: "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
-                    // dev
-                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
-
-                    // live
-                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                    xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
@@ -181,11 +201,7 @@
                 type: "POST",
                 url: "/api/notion",
                 beforeSend: function (xhr) {
-                    // dev
-                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
-
-                    // live
-                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                    xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
@@ -209,11 +225,7 @@
                 type: "POST",
                 url: "/api/notion",
                 beforeSend: function (xhr) {
-                    // dev
-                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
-
-                    // live
-                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                    xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
@@ -222,7 +234,8 @@
             })
         }
 
-        function updatePageProperty() {var db_id = document.getElementById("db_id").value
+        function updatePageProperty() {
+            var db_id = document.getElementById("db_id").value
             var page_id = document.getElementById("page_id").value
             var property_name = document.getElementById("property_name").value
             var property_value = document.getElementById("property_value").value
@@ -237,16 +250,37 @@
                 type: "PUT",
                 url: "/api/notion/" + page_id,
                 beforeSend: function (xhr) {
-                    // dev
-                    // xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiYzkzN2E4Njc4ZTM0MGJiYzQyNDI0MDRlNmFmMjE0NmMzMTI5ZTQyNTBhNGQ0ZTkwYzM5Y2JjZjJjYTNkZjBjMTVkOGNiYmI0NzJiYjA1NmUiLCJpYXQiOjE2NDkyODY4MzguMTMzODU5LCJuYmYiOjE2NDkyODY4MzguMTMzODY0LCJleHAiOjE2ODA4MjI4MzguMDI2Nzg4LCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.iUuh5mxovWNxTi6tqHqWXQVVwJ3vce5_taKOJdkC3ZBUts0FRpCHDu9SYzhlNETWDbQCrcfFPxaICVfKx2wX5KjFcapkhuUPRQlJnlZDnvONpYnX4eXAFAYv5giNEttc-JSOiIezKfUeO-xzRTADPd4BM-KFRsLTmeU13kvly6H2AHGxJBbaSjarnpuE5SmfDAENRsz9WAmfuKdTmtKBQgh3-yx2Z6Dhss9JHcmZP5-SHETnttOd-LA8VGxEhEJhPkYk8Ip9f86W0o1rD0yBu3MzxjeCN5ZhhXZjeC-R92O0ODOqobhEtZDj1H8Z2gUYrEAVMwwT1ggf7ysPYwLLh3idUarLsuJwxQ7qPOwaj8OsOUZtrXxxjH8jeZgqxxQl-66k3MDuPozxoradyjtNWQDJKKumC3-gASKsz9NuehTETXIbk6lfK6SVYuuZx558N5KcpfckHJxRlxueKrhIexwPKYR9-9iVFpfMae7Gs4RsPu17r_XRtQuw8dbtguI0tcRxE5tuM8M0DJ5gV_T3Im3Z53Vd3eWGvLugjErQ7UBecRfVMDWOV1RJi-ZuUJRKYXoDjfg-aAV58oYj84FKDXtuUwdMKAaUU1xFc2KAF3GslfL9dt5fMv-Ry1rdjGYgA7cxkDnRcYPyfsRkdh43JundKQM4zmEVBOyGXqS6ewE');
-
-                    // live
-                    xhr.setRequestHeader('Authorization', 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMDcwMWE5YjZhODkyNDk3ZWM5OGYxNzEwZmY4ZTZkOGMxY2U3NTRhMTI0OGYzMzNmZWQyMTc3ZmY2NWFhZTk1ODg0ZTQwYTZjMTg1OTkzYjkiLCJpYXQiOjE2NDk5MDQ3MzguMTkwOTgyLCJuYmYiOjE2NDk5MDQ3MzguMTkwOTg4LCJleHAiOjE2ODE0NDA3MzguMTgxOTMsInN1YiI6IjEiLCJzY29wZXMiOltdfQ.MNybXOMEwyE3lqMIIQCjIhqtY_DFnZXr3uTvD7ZHqZpnciBWAvmNCaGBNAfrQKkGpV5oZTDfQB2bmJiY-MWb0y-QpNPC6ld5Cmq7PSV6AoUn3oWj1VYUrKTMN_8tWTyu65N13muT5aYT-IxrkZF4X4_0olyZLlBee8yG-cdktqFZ0jHCqsObf4T5YhP5IMJplQffZl7GjXK-xpGHYuIPgVyULJ9_DacpegyP2B-fKDzDeFmyxB10uyk670qi8KBV5u08_frt2NnQQBXtK2NmAiw847TEFXHhTE4rcswBRy-WAGTFQiwPCICse-PGV06zMZRXXS-lkz93w0hUe6DijXNrbIapP6VFzP_J2BfyPVuJjFfVL3GwEr2c5AGTl_hxTeawCjrrjEmbHUCO4CjXU2jKFl4rFidW4D3OCz9XuXInwMxaQmNPJIYMH7wkAwOQUHZaVC12EyXXTh1Fjthte5nwvCuvgeMzRpInIzxLp9buy9YfW1f32nTmTehbO6cKnLZu122Dj_IUR5eVmu_GVlVi_Lu9ReTUl-OAczqEHFOgtNPCX55kKvFqjJepDB42hR8R3pk9gR4N1JzzgFVpSS8DfsgEYZWoaTijm3EVaeqb80S5cCzlXXLDIVIlnEtr14Egq2NomAKmGwgtqUH3twAucLUH5cwPMA4h3stf9dQ');
+                    xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
                 data: JSON.stringify(params),
                 async: false,
+            })
+        }
+
+        function filterByMultiple() {
+            var type = "multi_filters"
+            var db_id = document.getElementById("mt_db_id").value
+            var filters_str = document.getElementById("mt_page_options").value
+            var params = {
+                type: type,
+                id: db_id,
+                filters: filters_str,
+            }
+            var urlParams = new URLSearchParams(params).toString()
+            
+            $.ajax({
+                type: "GET",
+                url: "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', token);
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
             })
         }
     </script>
