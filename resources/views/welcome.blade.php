@@ -19,6 +19,10 @@
         <style>
             body {
                 font-family: 'Nunito';
+                background-color: ;
+            }
+            .global-settings {
+                margin-bottom: 5rem;
             }
             .section {
                 border-bottom: 1px solid;
@@ -29,10 +33,17 @@
             }
         </style>
     </head>
-    <body class="antialiased">
-        <div class="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
-
-            <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+    <body class="antialiased bg-gray-100">
+        <div class="relative flex items-top dark:bg-gray-900 sm:items-center sm:pt-0 global-settings">
+            <div class="mx-auto sm:px-6 lg:px-4">
+                <h4>Global settings</h4>
+                <p class="section-header">Pagination settings</p>
+                <input type="text" id="g_page_limit" placeholder="Page limit (Maximum: 100)">
+                <input type="text" id="g_offset" placeholder="Offset (Valid block ID)">
+            </div>
+        </div>
+        <div class="relative flex items-top justify-center dark:bg-gray-900 sm:items-center sm:pt-0">
+            <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="section">
                     <p class="section-header">Single-filters</p>
                     <input type="text" id="field_name" placeholder="Field name">
@@ -132,9 +143,21 @@
         }
         var page_json_txt = JSON.stringify(page_json)
         document.getElementById("page_options").value = page_json_txt
-        
+
+        var g_page_limit = 100
+        var g_offset = 0
+
+        function getGlobalSettings() {
+            g_page_limit = document.getElementById("g_page_limit").value
+            if (!g_page_limit) g_page_limit = 100
+
+            g_offset = document.getElementById("g_offset").value
+            if (g_offset == null || g_offset === undefined) g_offset = 0
+        }
 
         function search() {
+            getGlobalSettings()
+
             var field_name = document.getElementById("field_name").value
             var keyword = document.getElementById("keyword").value
             var type = "db"
@@ -143,7 +166,9 @@
                 type: type,
                 id: db_id,
                 field_name: field_name,
-                keyword: keyword
+                keyword: keyword,
+                limit: g_page_limit,
+                offset: g_offset
             }
             var urlParams = new URLSearchParams(params).toString()
             
@@ -162,12 +187,16 @@
         }
 
         function getFullContents() {
+            getGlobalSettings()
+
             var block_id = document.getElementById("block_id").value
             var type = "block"
             var params = {
                 type: type,
                 id: block_id,
-                include_child: true
+                include_child: true,
+                limit: g_page_limit,
+                offset: g_offset
             }
             var urlParams = new URLSearchParams(params).toString()
             $.ajax({
@@ -185,6 +214,8 @@
         }
 
         function appendContents() {
+            getGlobalSettings()
+            
             var block_id = document.getElementById("block_id2").value
             var contents = document.getElementById("txt_contents").value
             var content_type = document.getElementById("content_type").value
@@ -193,7 +224,9 @@
                 type: type,
                 id: block_id,
                 content_type: content_type,
-                contents: contents
+                contents: contents,
+                limit: g_page_limit,
+                offset: g_offset
             }
             console.log(params)
             // return;
@@ -213,13 +246,17 @@
         }
 
         function insertPageToDB() {
+            getGlobalSettings()
+            
             var db_id = document.getElementById("db_id").value
             var options = JSON.parse(document.getElementById("page_options").value)
             var type = "db"
             var params = {
                 type: type,
                 id: db_id,
-                options: options
+                options: options,
+                limit: g_page_limit,
+                offset: g_offset
             }
             $.ajax({
                 type: "POST",
@@ -235,6 +272,8 @@
         }
 
         function updatePageProperty() {
+            getGlobalSettings()
+            
             var db_id = document.getElementById("db_id").value
             var page_id = document.getElementById("page_id").value
             var property_name = document.getElementById("property_name").value
@@ -244,7 +283,9 @@
                 type: type,
                 id: page_id,
                 property_name: property_name,
-                property_value: property_value
+                property_value: property_value,
+                limit: g_page_limit,
+                offset: g_offset
             }
             $.ajax({
                 type: "PUT",
@@ -260,6 +301,8 @@
         }
 
         function filterByMultiple() {
+            getGlobalSettings()
+            
             var type = "multi_filters"
             var db_id = document.getElementById("mt_db_id").value
             var filters_str = document.getElementById("mt_page_options").value
@@ -267,6 +310,8 @@
                 type: type,
                 id: db_id,
                 filters: filters_str,
+                limit: g_page_limit,
+                offset: g_offset
             }
             var urlParams = new URLSearchParams(params).toString()
             

@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 // use FiveamCode\LaravelNotionApi\Notion;
 use FiveamCode\LaravelNotionApi\Query\Filters\Filter;
 use FiveamCode\LaravelNotionApi\Query\Sorting;
+use FiveamCode\LaravelNotionApi\Query\StartCursor;
 
 use FiveamCode\LaravelNotionApi\Entities\Page;
 use FiveamCode\LaravelNotionApi\Entities\Blocks\Block;
@@ -39,6 +40,14 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
+        $limit = $request->limit ? $request->limit : 100;
+        $offset = $request->offset ? $request->offset : '';
+
+        $startCursor = null;
+        if ($offset) {
+            $startCursor = new StartCursor($offset);
+        }
+        
         $type = $request->type;
         $id = $request->id;
 
@@ -94,15 +103,19 @@ class NotionController extends Controller
                                 )
                             );
                     }
-    
+                    
                     $result = Notion::database($id)
                         ->filterBy($filters)
+                        ->limit($limit)
+                        // ->offset($startCursor)
                         ->query()
                         ->asCollection();
                     return response(['data' => $result]);
                 }
                 else {
                     $result = Notion::database($id)
+                        ->limit($limit)
+                        // ->offset($startCursor)
                         ->query()
                         ->asCollection();
                     return response(['data' => $result]);
@@ -164,15 +177,47 @@ class NotionController extends Controller
     
                     $result = Notion::database($id)
                         ->filterBy($filters)
-                        ->query()
-                        ->asCollection();
-                    return response(['data' => $result]);
+                        ->limit($limit);
+
+                    if ($startCursor) {
+                        $result = $result->offset($startCursor);
+                    }
+                    $result = $result->query();
+
+                    $rawResponse = $result->getRawResponse();
+
+                    $nextCursor = $rawResponse["next_cursor"];
+                    $hasMore = $rawResponse["has_more"];
+
+                    $data = $result->asCollection();
+
+                    return response([
+                        'data' => $data, 
+                        'has_more' => $hasMore, 
+                        'next_cursor' => $nextCursor
+                    ]);
                 }
                 else {
                     $result = Notion::database($id)
-                        ->query()
-                        ->asCollection();
-                    return response(['data' => $result]);
+                        ->limit($limit);
+
+                    if ($startCursor) {
+                        $result = $result->offset($startCursor);
+                    }
+                    $result = $result->query();
+
+                    $rawResponse = $result->getRawResponse();
+
+                    $nextCursor = $rawResponse["next_cursor"];
+                    $hasMore = $rawResponse["has_more"];
+
+                    $data = $result->asCollection();
+
+                    return response([
+                        'data' => $result,
+                        'has_more' => $hasMore,
+                        'next_cursor' => $nextCursor
+                    ]);
                 }
                 break;
 
