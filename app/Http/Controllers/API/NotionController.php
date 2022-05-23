@@ -50,6 +50,7 @@ class NotionController extends Controller
         
         $type = $request->type;
         $id = $request->id;
+        $orderBy = $request->order_by;
 
         switch($type) {
             // database
@@ -176,8 +177,16 @@ class NotionController extends Controller
                     }
     
                     $result = Notion::database($id)
-                        ->filterBy($filters)
-                        ->limit($limit);
+                        ->filterBy($filters);
+
+                    if ($orderBy) {
+                        $sortings = new Collection();
+                        $sortings->add(
+                            Sorting::propertySort($orderBy, 'ascending')
+                        );
+                        $result = $result->sortBy($sortings);
+                    }
+                    $result = $result->limit($limit);
 
                     if ($startCursor) {
                         $result = $result->offset($startCursor);

@@ -55,6 +55,7 @@
                     <p class="section-header">Multi-filters</p>
                     <input type="text" id="mt_db_id" placeholder="Database ID">
                     <textarea id="mt_page_options" placeholder="{'property_name1': 'property_value1', 'property_name2': 'property_value2'}"></textarea>
+                    <input type="text" id="mt_order_by" placeholder="Order by ..">
                     <button onClick="filterByMultiple()">Filter</button>
                 </div>
                 <hr>
@@ -306,12 +307,14 @@
             var type = "multi_filters"
             var db_id = document.getElementById("mt_db_id").value
             var filters_str = document.getElementById("mt_page_options").value
+            var order_by = document.getElementById("mt_order_by").value
             var params = {
                 type: type,
                 id: db_id,
                 filters: filters_str,
                 limit: g_page_limit,
-                offset: g_offset
+                offset: g_offset,
+                order_by: order_by
             }
             var urlParams = new URLSearchParams(params).toString()
             
