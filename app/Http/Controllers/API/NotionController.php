@@ -250,6 +250,29 @@ class NotionController extends Controller
                 }
                 break;
 
+            // blocks list
+            case 'blocks_list':
+                $include_child = $request->include_child;
+                $blocks = json_decode($request->blocks);
+
+                if (count($blocks)) {
+                    $result = [];
+                    foreach ($blocks as $block_id) {
+                        if ($include_child) {
+                            $result[$block_id] = $this->getBlockIncludingChilds($block_id);
+                        }
+                        else {
+                            $result[$block_id] = Notion::block($block_id)
+                                ->children()
+                                ->asCollection();
+                        }
+                    }
+                    return response(['data' => $result]);
+                }
+
+                return response(['success' => false, 'message' => 'Blocks cannot be empty.']);
+                break;
+
             case 'page':
                 $page = Notion::pages()->find($id);
                 return response(['data' => $page]);

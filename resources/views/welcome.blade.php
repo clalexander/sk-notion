@@ -31,6 +31,9 @@
                 margin: 0;
                 margin-bottom: .5px;
             }
+            hr {
+                margin-bottom: 3rem;
+            }
         </style>
     </head>
     <body class="antialiased bg-gray-100">
@@ -63,6 +66,12 @@
                     <p class="section-header">GET Full Block Contents</p>
                     <input type="text" id="block_id" placeholder="Block ID">
                     <button onClick="getFullContents()">Get Full Contents</button>
+                </div>
+                <hr>
+                <div class="section">
+                    <p class="section-header">GET Contents from Blocks List</p>
+                    <textarea id="blocks_list" placeholder="['block_id1','block_id2',...]"></textarea>
+                    <button onClick="getFullContentsByBlocksList()">Get Full Contents</button>
                 </div>
                 <hr>
                 <div class="section">
@@ -195,6 +204,34 @@
             var params = {
                 type: type,
                 id: block_id,
+                include_child: true,
+                limit: g_page_limit,
+                offset: g_offset
+            }
+            var urlParams = new URLSearchParams(params).toString()
+            $.ajax({
+                type: "GET",
+                url: "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', token);
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
+            })
+        }
+
+        function getFullContentsByBlocksList() {
+            getGlobalSettings()
+
+            var blocks_list = document.getElementById("blocks_list").value
+            var type = "blocks_list"
+            var params = {
+                type: type,
+                // id: block_id,
+                blocks: blocks_list,
                 include_child: true,
                 limit: g_page_limit,
                 offset: g_offset
