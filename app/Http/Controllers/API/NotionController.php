@@ -233,6 +233,7 @@ class NotionController extends Controller
             // block
             case 'block':
                 $include_child = $request->include_child;
+
                 if ($include_child) {
                     $blockContents = $this->getBlockIncludingChilds($id);
                     return response(['data' => $blockContents]);
@@ -551,6 +552,11 @@ class NotionController extends Controller
                     return $pageContents;
                     break;
 
+                // case 'table_row':
+                //     $block = Notion::block($blockId);
+                //     dd($block);
+                //     break;
+
                 case 'synced_block':
                     $contents[$index] = $this->getBlockIncludingChilds($pageId, 'page');
                     break;
@@ -584,11 +590,24 @@ class NotionController extends Controller
 
                     case "synced_block":
                         if (array_key_exists('synced_from', $block->getRawContent())) {
-                            $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
-                            // $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
-                            $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
-                            $contents[$index] = $contents[$index][0];
+                            if (is_null($block->getRawContent()['synced_from'])) {
+                                $contents[$index] = $this->getBlockIncludingChilds($block->getId());
+                                $contents[$index] = $contents[$index][0];
+                            }
+                            else {
+                                $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
+                                // $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
+                                $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
+                                $contents[$index] = $contents[$index][0];
+                            }
                         }
+                        break;
+
+                    case "table_row":
+                        // dd($block->getRawContent()["cells"]);
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['data'] = $block->getRawContent()["cells"];
                         break;
 
                     case "paragraph":
