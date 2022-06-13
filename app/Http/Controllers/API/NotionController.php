@@ -233,20 +233,18 @@ class NotionController extends Controller
             // block
             case 'block':
                 $include_child = $request->include_child;
-
                 if ($include_child) {
+                    // $block = Notion::block($id)
+                    //     ->children()
+                    //     ->asCollection();
                     $blockContents = $this->getBlockIncludingChilds($id);
-                    return response(['data' => $blockContents]);
+                    return response(['children' => $blockContents]);
+                    // return response(['block' => $block, 'children' => $blockContents]);
                 }
                 else {
                     $block = Notion::block($id)
-                        // ->retrieve();
-                        // ->getRawContent()['page_id'];
-
                         ->children()
                         ->asCollection();
-
-                        // ->asTextCollection();
                     return response(['data' => $block]);
                 }
                 break;
@@ -596,7 +594,6 @@ class NotionController extends Controller
                             }
                             else {
                                 $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
-                                // $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
                                 $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
                                 $contents[$index] = $contents[$index][0];
                             }
@@ -604,7 +601,6 @@ class NotionController extends Controller
                         break;
 
                     case "table_row":
-                        // dd($block->getRawContent()["cells"]);
                         $contents[$index]['id'] = $block->getId();
                         $contents[$index]['type'] = $block->getType();
                         $contents[$index]['data'] = $block->getRawContent()["cells"];
@@ -614,12 +610,24 @@ class NotionController extends Controller
                         $contents[$index]['id'] = $block->getId();
                         $contents[$index]['type'] = $block->getType();
                         $contents[$index]['plain_text'] = $block->asText();
+                        $contents[$index]['styled_text'] = $this->getStyledContent($block->getRawContent());
+                        break;
+
+                    case "bulleted_list_item":
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+                        $contents[$index]['styled_text'] = $this->getStyledContent($block->getRawContent());
                         break;
 
                     default: 
                         $contents[$index]['id'] = $block->getId();
                         $contents[$index]['type'] = $block->getType();
                         $contents[$index]['plain_text'] = $block->asText();
+                        $styledContent = $this->getStyledContent($block->getRawContent());
+                        if ($styledContent && count($styledContent)) {
+                            $contents[$index]['styled_text'] = $styledContent;
+                        }
                         break;
                 }
                 
@@ -634,5 +642,27 @@ class NotionController extends Controller
         }
 
         return $contents;
+    }
+
+
+    /**
+     * Get Styled texts/contents
+     */
+    private function getStyledContent($rawContents = null)
+    {
+        if ($rawContents && array_key_exists("text", $rawContents)) {
+            $styledContent = [];
+            for ($idx = 0; $idx < count($rawContents["text"]); $idx++) {
+                array_push(
+                    $styledContent,
+                    array(
+                        "styles" => $rawContents["text"][$idx]["annotations"],
+                        "plain_text" => $rawContents["text"][$idx]["plain_text"]
+                    )
+                );
+            }
+            return $styledContent;
+        }
+        return [];
     }
 }
