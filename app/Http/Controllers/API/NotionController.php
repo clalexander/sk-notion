@@ -234,12 +234,12 @@ class NotionController extends Controller
             case 'block':
                 $include_child = $request->include_child;
                 if ($include_child) {
-                    // $block = Notion::block($id)
-                    //     ->children()
-                    //     ->asCollection();
+                    $block = Notion::block($id)
+                        // ->children()
+                        ->retrieve();
                     $blockContents = $this->getBlockIncludingChilds($id);
-                    return response(['children' => $blockContents]);
-                    // return response(['block' => $block, 'children' => $blockContents]);
+                    // return response(['children' => $blockContents]);
+                    return response(['block' => $block, 'children' => $blockContents]);
                 }
                 else {
                     $block = Notion::block($id)
@@ -618,6 +618,38 @@ class NotionController extends Controller
                         $contents[$index]['type'] = $block->getType();
                         $contents[$index]['plain_text'] = $block->asText();
                         $contents[$index]['styled_text'] = $this->getStyledContent($block->getRawContent());
+                        break;
+
+                    case "table":
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+                        $contents[$index]['table_options'] = $block->getRawResponse()["table"];
+                        break;
+
+                    // case "table_row":
+                    //     $contents[$index]['id'] = $block->getId();
+                    //     $contents[$index]['type'] = $block->getType();
+                    //     $contents[$index]['plain_text'] = $block->asText();
+                    //     $contents[$index]['table_options'] = $block->getRawResponse()["table"];
+                    //     break;
+
+                    // case "table_of_contents":
+                    //     dd("table_of_contents exists!!!");
+                    //     break;
+
+                    case "quote":
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+
+                        $rawContent = $block->getRawContent();
+                        $contents[$index]['color'] = $rawContent["color"];
+
+                        $styledContent = $this->getStyledContent($rawContent);
+                        if ($styledContent && count($styledContent)) {
+                            $contents[$index]['styled_text'] = $styledContent;
+                        }
                         break;
 
                     default: 
