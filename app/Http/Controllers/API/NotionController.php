@@ -254,7 +254,7 @@ class NotionController extends Controller
                 $include_child = $request->include_child;
                 $blocks = json_decode($request->blocks);
 
-                if (count($blocks)) {
+                if (!is_null($blocks) && count($blocks)) {
                     $result = [];
                     foreach ($blocks as $block_id) {
                         if ($include_child) {
@@ -652,6 +652,17 @@ class NotionController extends Controller
                         }
                         break;
 
+                    case "image":
+                        $contents[$index]['id'] = $block->getId();
+                        $contents[$index]['type'] = $block->getType();
+                        $contents[$index]['plain_text'] = $block->asText();
+                        $rawContent = $block->getRawContent();
+                        $contents[$index]['file'] = $rawContent['file'];
+                        if (array_key_exists('caption', $rawContent)) {
+                            $contents[$index]['caption'] = $rawContent['caption'];
+                        }
+                        break;
+
                     default: 
                         $contents[$index]['id'] = $block->getId();
                         $contents[$index]['type'] = $block->getType();
@@ -687,10 +698,11 @@ class NotionController extends Controller
             for ($idx = 0; $idx < count($rawContents["text"]); $idx++) {
                 array_push(
                     $styledContent,
-                    array(
-                        "styles" => $rawContents["text"][$idx]["annotations"],
-                        "plain_text" => $rawContents["text"][$idx]["plain_text"]
-                    )
+                    // array(
+                    //     "styles" => $rawContents["text"][$idx]["annotations"],
+                    //     "plain_text" => $rawContents["text"][$idx]["plain_text"]
+                    // )
+                    $rawContents["text"][$idx]
                 );
             }
             return $styledContent;

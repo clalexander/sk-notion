@@ -70,7 +70,7 @@
                 <hr>
                 <div class="section">
                     <p class="section-header">GET Contents from Blocks List</p>
-                    <textarea id="blocks_list" placeholder="['block_id1','block_id2',...]"></textarea>
+                    <textarea id="blocks_list" placeholder='["block_id1", "block_id2",...]'></textarea>
                     <button onClick="getFullContentsByBlocksList()">Get Full Contents</button>
                 </div>
                 <hr>
