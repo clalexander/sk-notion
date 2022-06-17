@@ -48,6 +48,12 @@
         <div class="relative flex items-top justify-center dark:bg-gray-900 sm:items-center sm:pt-0">
             <div class="mx-auto sm:px-6 lg:px-8">
                 <div class="section">
+                    <p class="section-header">Quick Find</p>
+                    <input type="text" id="search_text" placeholder="Search Text">
+                    <button onClick="quickFind()">Search</button>
+                </div>
+                <hr>
+                <div class="section">
                     <p class="section-header">Single-filters</p>
                     <input type="text" id="field_name" placeholder="Field name">
                     <input type="text" id="keyword" placeholder="Keyword">
@@ -352,6 +358,33 @@
                 limit: g_page_limit,
                 offset: g_offset,
                 order_by: order_by
+            }
+            var urlParams = new URLSearchParams(params).toString()
+            
+            $.ajax({
+                type: "GET",
+                url: "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', token);
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
+            })
+        }
+
+        function quickFind() {
+            getGlobalSettings()
+            
+            var type = "quick_find"
+            var search_text = document.getElementById("search_text").value
+            var params = {
+                type: type,
+                search_text: search_text,
+                limit: g_page_limit,
+                offset: g_offset,
             }
             var urlParams = new URLSearchParams(params).toString()
             

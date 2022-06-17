@@ -277,6 +277,12 @@ class NotionController extends Controller
                 return response(['data' => $page]);
                 break;
 
+            case 'quick_find':
+                $searchText = $request->search_text;
+                $result = Notion::search($searchText)->query()->asCollection();
+                return response(['data' => $result]);
+                break;
+
             default: 
                 break;
         }
