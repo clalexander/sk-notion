@@ -127,51 +127,104 @@ class NotionController extends Controller
                 $filter_str = $request->filters;
                 
                 if ($filter_str) {
+                    // dd($filter_str);
                     $filter_options = json_decode($filter_str);
                     $filters = new Collection();
-                    foreach($filter_options as $key => $value) {
+
+                    // check if any duplicated filter_options, if then separate them as multiple filters
+                    $filter_arr = $this->processFilters($filter_options);
+
+                    foreach ($filter_options as $key => $value) {
                         switch($key) {
                             case "Book":
                             case "Status":
                             case "Language":
-                                $filters->add(
-                                    Filter::rawFilter(
-                                        $key, 
-                                        [
-                                            'select' => [
-                                                'equals' => $value
+                                if (is_array($value) && count($value) > 0) {
+                                    foreach ($value as $subVal) {
+                                        $filters->add(
+                                            Filter::rawFilter(
+                                                $key, 
+                                                [
+                                                    'select' => [
+                                                        'equals' => $subVal
+                                                    ]
+                                                ]
+                                            )
+                                        );
+                                    }
+                                }
+                                else {
+                                    $filters->add(
+                                        Filter::rawFilter(
+                                            $key, 
+                                            [
+                                                'select' => [
+                                                    'equals' => $value
+                                                ]
                                             ]
-                                        ]
-                                    )
-                                );
+                                        )
+                                    );
+                                }
                                 // select
                                 break;
     
                             case "Category":
                                 // multi-select
-                                $filters->add(
-                                    Filter::rawFilter(
-                                        $key, 
-                                        [
-                                            'multi_select' => [
-                                                'contains' => $value
+                                if (is_array($value) && count($value) > 0) {
+                                    foreach ($value as $subVal) {
+                                        $filters->add(
+                                            Filter::rawFilter(
+                                                $key, 
+                                                [
+                                                    'multi_select' => [
+                                                        'contains' => $subVal
+                                                    ]
+                                                ]
+                                            )
+                                        );
+                                    }
+                                }
+                                else {
+                                    $filters->add(
+                                        Filter::rawFilter(
+                                            $key, 
+                                            [
+                                                'multi_select' => [
+                                                    'contains' => $value
+                                                ]
                                             ]
-                                        ]
-                                    )
-                                );
+                                        )
+                                    );
+                                }
                                 break;
     
                             default:
-                                $filters->add(
-                                    Filter::rawFilter(
-                                        $key, 
-                                        [
-                                            'rich_text' => [
-                                                'contains' => $value
+                                if (is_array($value) && count($value) > 0) {
+                                    foreach ($value as $subVal) {
+                                        $filters->add(
+                                            Filter::rawFilter(
+                                                $key, 
+                                                [
+                                                    'rich_text' => [
+                                                        'contains' => $subVal
+                                                    ]
+                                                ]
+                                            )
+                                        );
+                                    }
+                                }
+                                else {
+                                    $filters->add(
+                                        Filter::rawFilter(
+                                            $key, 
+                                            [
+                                                'rich_text' => [
+                                                    'contains' => $value
+                                                ]
                                             ]
-                                        ]
-                                    )
-                                );
+                                        )
+                                    );
+                                }
                                 break;
                         }
                     }
@@ -238,8 +291,14 @@ class NotionController extends Controller
                         // ->children()
                         ->retrieve();
                     $blockContents = $this->getBlockIncludingChilds($id);
-                    // return response(['children' => $blockContents]);
                     return response(['block' => $block, 'children' => $blockContents]);
+                    // return response(['block' => $block]);
+                    // return response(['children' => $blockContents]);
+                    // $childrens = Notion::block($id)
+                    //     ->children()
+                    //     ->asCollection();
+                    // return response(['block' => $block, 'children' => $childrens]);
+
                 }
                 else {
                     $block = Notion::block($id)
@@ -544,6 +603,8 @@ class NotionController extends Controller
      */
     private function getBlockIncludingChilds($blockId, $contentType = null)
     {
+        // var_dump("=============getBlockIncludingChilds: \$blockId");
+        // var_dump($blockId);
         if ($contentType) {
             switch ($contentType) {
                 case 'page':
@@ -577,6 +638,8 @@ class NotionController extends Controller
         if (count($blocks)) {
             $index = 0;
             foreach ($blocks as $block) {
+                // var_dump("======foreach: \$block->getType()");
+                // var_dump($block->getType());
                 $contents[$index] = [];
 
                 switch($block->getType()) {
@@ -599,9 +662,21 @@ class NotionController extends Controller
                                 $contents[$index] = $contents[$index][0];
                             }
                             else {
+                                // if ($blockId == "ce9e9bf1-110c-4822-9ad3-534ee2ee4844") {
+                                //     dd($block->getRawContent());
+                                // }
                                 $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
                                 $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
-                                $contents[$index] = $contents[$index][0];
+
+                                // var_dump("\$syncedBlockId");
+                                // var_dump($syncedBlockId);
+
+                                if (count($contents[$index])) {
+                                    $contents[$index] = $contents[$index][0];
+                                }
+                                else {
+                                    // $contents[$index] = ["asdf"=>"asdf"];
+                                }
                             }
                         }
                         break;
@@ -714,5 +789,15 @@ class NotionController extends Controller
             return $styledContent;
         }
         return [];
+    }
+
+    /**
+     * 
+     */
+    private function processFilters($filter_options)
+    {
+        $filter_arr = [];
+
+        return $filter_arr;
     }
 }
