@@ -62,6 +62,19 @@ class NotionController extends Controller
                     $filters = new Collection();
 
                     switch($field_name) {
+                        case "Heading":
+                            $filters->add(
+                                Filter::rawFilter(
+                                    "﻿Heading",
+                                    [
+                                        'rich_text' => [
+                                            'contains' => $keyword
+                                        ]
+                                    ]
+                                )
+                            );
+                            break;
+
                         case "Book":
                         case "Status":
                         case "Language":

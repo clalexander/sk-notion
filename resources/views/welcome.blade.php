@@ -50,13 +50,14 @@
                 <div class="section">
                     <p class="section-header">Quick Find</p>
                     <input type="text" id="search_text" placeholder="Search Text">
-                    <button onClick="quickFind()">Search</button>
+                    <button onClick="quickFind()">Quick Find</button>
                 </div>
                 <hr>
                 <div class="section">
                     <p class="section-header">Single-filters</p>
                     <input type="text" id="field_name" placeholder="Field name">
                     <input type="text" id="keyword" placeholder="Keyword">
+                    <input type="text" id="db_id_for_search" placeholder="DB ID">
                     <button onClick="search()">Search</button>
                 </div>
                 <hr>
@@ -177,7 +178,8 @@
             var field_name = document.getElementById("field_name").value
             var keyword = document.getElementById("keyword").value
             var type = "db"
-            var db_id = "ba2b8607fdb74c17b2ac971a5653be98"
+            // var db_id = "ba2b8607fdb74c17b2ac971a5653be98"
+            var db_id = document.getElementById("db_id_for_search").value
             var params = {
                 type: type,
                 id: db_id,
