@@ -453,6 +453,15 @@ class NotionController extends Controller
                     $page->setText("BCV2", $pageOptions["BCV2"]);
                 }
 
+
+                
+                if (array_key_exists("Title", $pageOptions) && $pageOptions["Title"]) {
+                    $page->setTitle("Title", $pageOptions["Title"]);
+                }
+                if (array_key_exists("TopicID", $pageOptions) && $pageOptions["TopicID"]) {
+                    $page->setText("TopicID", $pageOptions["TopicID"]);
+                }
+
                 $result = Notion::pages()->createInDatabase($id, $page);
                 
                 return response(['page_id' => $result->getId(), 'success' => true]);
