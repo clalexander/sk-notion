@@ -453,7 +453,6 @@ class NotionController extends Controller
                     $page->setText("BCV2", $pageOptions["BCV2"]);
                 }
 
-
                 
                 if (array_key_exists("Title", $pageOptions) && $pageOptions["Title"]) {
                     $page->setTitle("Title", $pageOptions["Title"]);
@@ -461,8 +460,10 @@ class NotionController extends Controller
                 if (array_key_exists("TopicID", $pageOptions) && $pageOptions["TopicID"]) {
                     $page->setText("TopicID", $pageOptions["TopicID"]);
                 }
-                if (array_key_exists("BCV3", $pageOptions) && $pageOptions["BCV3"]) {
-                    $page->setText("BCV3", $pageOptions["BCV3"]);
+                for ($i = 3; $i<=30; $i++) {
+                    if (array_key_exists("BCV" + $i, $pageOptions) && $pageOptions["BCV" + $i]) {
+                        $page->setText("BCV" + $i, $pageOptions["BCV" + $i]);
+                    }
                 }
 
                 $result = Notion::pages()->createInDatabase($id, $page);
@@ -587,6 +588,33 @@ class NotionController extends Controller
                 case "BCV1":
                 case "BCV2":
                 case "BCV3":
+                case "BCV4":
+                case "BCV5":
+                case "BCV6":
+                case "BCV7":
+                case "BCV8":
+                case "BCV9":
+                case "BCV10":
+                case "BCV11":
+                case "BCV12":
+                case "BCV13":
+                case "BCV14":
+                case "BCV15":
+                case "BCV16":
+                case "BCV17":
+                case "BCV18":
+                case "BCV19":
+                case "BCV20":
+                case "BCV21":
+                case "BCV22":
+                case "BCV23":
+                case "BCV24":
+                case "BCV25":
+                case "BCV26":
+                case "BCV27":
+                case "BCV28":
+                case "BCV29":
+                case "BCV30":
                 case "TopicID":
                     $page->setText($property_name, $property_value);
                     break;
