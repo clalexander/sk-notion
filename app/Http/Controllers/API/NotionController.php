@@ -564,6 +564,10 @@ class NotionController extends Controller
                         $page->setTitle("﻿Heading", $property_value);
                     break;
 
+                case "Title":
+                        $page->setTitle("Title", $property_value);
+                    break;
+
                 case "HeadingOrder":
                 case "Keywords":
                 case "Passage":
@@ -582,6 +586,8 @@ class NotionController extends Controller
                 case "NoteOrder":
                 case "BCV1":
                 case "BCV2":
+                case "BCV3":
+                case "TopicID":
                     $page->setText($property_name, $property_value);
                     break;
 
