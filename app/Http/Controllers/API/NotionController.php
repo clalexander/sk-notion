@@ -461,6 +461,9 @@ class NotionController extends Controller
                 if (array_key_exists("TopicID", $pageOptions) && $pageOptions["TopicID"]) {
                     $page->setText("TopicID", $pageOptions["TopicID"]);
                 }
+                if (array_key_exists("BCV3", $pageOptions) && $pageOptions["BCV3"]) {
+                    $page->setText("BCV3", $pageOptions["BCV3"]);
+                }
 
                 $result = Notion::pages()->createInDatabase($id, $page);
                 
