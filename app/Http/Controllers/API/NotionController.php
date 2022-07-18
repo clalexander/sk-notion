@@ -461,8 +461,8 @@ class NotionController extends Controller
                     $page->setText("TopicID", $pageOptions["TopicID"]);
                 }
                 for ($i = 3; $i<=30; $i++) {
-                    if (array_key_exists("BCV" + $i, $pageOptions) && $pageOptions["BCV" + $i]) {
-                        $page->setText("BCV" + $i, $pageOptions["BCV" + $i]);
+                    if (array_key_exists("BCV" . strval($i), $pageOptions) && $pageOptions["BCV" . strval($i)]) {
+                        $page->setText("BCV" . strval($i), $pageOptions["BCV" . strval($i)]);
                     }
                 }
 
