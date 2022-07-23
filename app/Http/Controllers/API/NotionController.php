@@ -267,8 +267,8 @@ class NotionController extends Controller
                     $data = $result->asCollection();
 
                     return response([
-                        'data' => $data,
-                        'has_more' => $hasMore,
+                        'data' => $data, 
+                        'has_more' => $hasMore, 
                         'next_cursor' => $nextCursor
                     ]);
                 }
@@ -686,12 +686,13 @@ class NotionController extends Controller
                     break;
             }
         }
-        
+
         // $blocks = Notion::block($blockId)
         //     ->children()
         //     ->asCollection()
         //     ->toArray();
-        $blocks = getAllBlocks($blockId);
+
+        $blocks = $this->getAllBlocks($blockId);
         
         $contents = [];
         
@@ -865,14 +866,23 @@ class NotionController extends Controller
     /**
      * Get All Blocks (recursive call due to page limit - 100)
      */
-    private function getAllBlocks($blockId, $offset)
+    private function getAllBlocks($blockId, $offset = null)
     {
-        $blocks = Notion::block($blockId)
-            ->children()
-            ->query();
-        dd($blocks);
-            // ->asCollection()
-            // ->toArray();
+        $blocks = Notion::block($blockId);
+
+        if (!is_null($offset)) {
+            $startCursor = new StartCursor($offset);
+            $blocks = $blocks->offset($startCursor);
+        }
+
+        $blocks = $blocks->children()
+            ->asCollection()
+            ->toArray();
+        
+        if (count($blocks) == 100) {
+            $next_page = $this->getAllBlocks($blockId, $blocks[99]->getId());
+            $blocks = array_merge($blocks, $next_page);
+        }
         
         return $blocks;
     }
