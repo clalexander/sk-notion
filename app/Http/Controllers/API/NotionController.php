@@ -570,7 +570,7 @@ class NotionController extends Controller
                 }
             }
             catch(Exception $e) {
-                return response(['success' => false, 'message' => 'Sorry, something went wrong.']);
+                return response(['success' => false, 'message' => $e->getMessage()]);
             }
             return response(['success' => true]);
         }
