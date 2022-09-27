@@ -117,6 +117,12 @@
                     <input type="text" id="property_value" placeholder="Property Value">
                     <button onClick="updatePageProperty()">Update</button>
                 </div>
+                <hr>
+                <div class="section">
+                    <p class="section-header">Delete page/block contents</p>
+                    <input type="text" id="d_page_id" placeholder="Page ID">
+                    <button onClick="deleteContents()">Delete</button>
+                </div>
             </div>
         </div>
     </body>
@@ -129,6 +135,9 @@
         if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
             token = local_token
         }
+
+        var base_url = 'http://' + location.hostname
+        // var base_url = 'http://67.205.146.54'
 
         var page_json = {
             "Heading": "",
@@ -192,7 +201,7 @@
             
             $.ajax({
                 type: "GET",
-                url: "/api/notion?" + urlParams,
+                url: base_url + "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -219,7 +228,7 @@
             var urlParams = new URLSearchParams(params).toString()
             $.ajax({
                 type: "GET",
-                url: "/api/notion?" + urlParams,
+                url: base_url + "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -247,7 +256,7 @@
             var urlParams = new URLSearchParams(params).toString()
             $.ajax({
                 type: "GET",
-                url: "/api/notion?" + urlParams,
+                url: base_url + "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -278,7 +287,7 @@
             // return;
             $.ajax({
                 type: "POST",
-                url: "/api/notion",
+                url: base_url + "/api/notion",
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -306,7 +315,7 @@
             }
             $.ajax({
                 type: "POST",
-                url: "/api/notion",
+                url: base_url + "/api/notion",
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -335,7 +344,7 @@
             }
             $.ajax({
                 type: "PUT",
-                url: "/api/notion/" + page_id,
+                url: base_url + "/api/notion/" + page_id,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -365,7 +374,7 @@
             
             $.ajax({
                 type: "GET",
-                url: "/api/notion?" + urlParams,
+                url: base_url + "/api/notion?" + urlParams,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
@@ -392,7 +401,31 @@
             
             $.ajax({
                 type: "GET",
-                url: "/api/notion?" + urlParams,
+                url: base_url + "/api/notion?" + urlParams,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Authorization', token);
+                },
+                contentType: "application/json; charset=utf-8",
+                dataType : 'JSON',
+                async: false,
+            }).done(function(data) {
+                console.log(data)
+            })
+        }
+
+        function deleteContents() {
+            getGlobalSettings()
+
+            var block_id = document.getElementById("d_page_id").value
+            var params = {
+                type: "delete_content",
+                // block_id: document.getElementById("d_page_id").value
+            }
+
+            $.ajax({
+                type: "PUT",
+                url: base_url + "/api/notion/" + block_id,
+                data: params,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },

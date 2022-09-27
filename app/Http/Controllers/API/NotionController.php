@@ -30,6 +30,7 @@ use FiveamCode\LaravelNotionApi\Entities\Blocks\Block as BlockEntity;
 
 use FiveamCode\LaravelNotionApi\Endpoints\Database;
 use Notion;
+use Exception;
 
 class NotionController extends Controller
 {
@@ -555,87 +556,107 @@ class NotionController extends Controller
         $pageId = $id;
         $property_name = $request->property_name;
         $property_value = $request->property_value;
-        
-        if ($property_value) {
-            $page = new Page();
-            $page->setId($pageId);
+        $type = $request->type;
 
-            switch($property_name) {
-                case "Heading":
-                        $page->setTitle("﻿Heading", $property_value);
-                    break;
-
-                case "Title":
-                        $page->setTitle("Title", $property_value);
-                    break;
-
-                case "HeadingOrder":
-                case "Keywords":
-                case "Passage":
-                case "RelatedPassage":
-                case "BeginWord":
-                case "EndWord":
-                case "TextualBase":
-                case "Reference":
-                case "StartPage":
-                case "StartParagraph":
-                case "EndPage":
-                case "EndParagraph":
-                case "VideoURL":
-                case "VideoTitle":
-                case "VideoTime":
-                case "NoteOrder":
-                case "BCV1":
-                case "BCV2":
-                case "BCV3":
-                case "BCV4":
-                case "BCV5":
-                case "BCV6":
-                case "BCV7":
-                case "BCV8":
-                case "BCV9":
-                case "BCV10":
-                case "BCV11":
-                case "BCV12":
-                case "BCV13":
-                case "BCV14":
-                case "BCV15":
-                case "BCV16":
-                case "BCV17":
-                case "BCV18":
-                case "BCV19":
-                case "BCV20":
-                case "BCV21":
-                case "BCV22":
-                case "BCV23":
-                case "BCV24":
-                case "BCV25":
-                case "BCV26":
-                case "BCV27":
-                case "BCV28":
-                case "BCV29":
-                case "BCV30":
-                case "TopicID":
-                    $page->setText($property_name, $property_value);
-                    break;
-
-                case "Book":
-                case "Status":
-                case "Language":
-                    $page->setSelect($property_name, $property_value);
-                    break;
-
-                case "Category":
-                    $category = array_filter($property_value);
-                    if (count($category) > 0) {
-                        $page->setMultiSelect($property_name, $property_value);
-                    }
-                    break;
+        if (isset($type) && $type == 'delete_content') {
+            $blocks = Notion::block($pageId)->children()->asCollection()->toArray();
+            try {
+                foreach($blocks as $block) {
+                    $blockRawResponse = Notion::block($id)->retrieve()->getRawResponse();
+                    $blockRawResponse["archived"] = true;
+    
+                    $newBlockEntity = new BlockEntity($blockRawResponse);
+                    $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
+                }
             }
-
-            $updatedPage = Notion::pages()->update($page);
-            return response(['page' => $updatedPage]);
+            catch(Exception $e) {
+                return response(['success' => false, 'message' => 'Sorry, something went wrong.']);
+            }
+            return response(['success' => true]);
         }
+        else {
+            if ($property_value) {
+                $page = new Page();
+                $page->setId($pageId);
+    
+                switch($property_name) {
+                    case "Heading":
+                            $page->setTitle("﻿Heading", $property_value);
+                        break;
+    
+                    case "Title":
+                            $page->setTitle("Title", $property_value);
+                        break;
+    
+                    case "HeadingOrder":
+                    case "Keywords":
+                    case "Passage":
+                    case "RelatedPassage":
+                    case "BeginWord":
+                    case "EndWord":
+                    case "TextualBase":
+                    case "Reference":
+                    case "StartPage":
+                    case "StartParagraph":
+                    case "EndPage":
+                    case "EndParagraph":
+                    case "VideoURL":
+                    case "VideoTitle":
+                    case "VideoTime":
+                    case "NoteOrder":
+                    case "BCV1":
+                    case "BCV2":
+                    case "BCV3":
+                    case "BCV4":
+                    case "BCV5":
+                    case "BCV6":
+                    case "BCV7":
+                    case "BCV8":
+                    case "BCV9":
+                    case "BCV10":
+                    case "BCV11":
+                    case "BCV12":
+                    case "BCV13":
+                    case "BCV14":
+                    case "BCV15":
+                    case "BCV16":
+                    case "BCV17":
+                    case "BCV18":
+                    case "BCV19":
+                    case "BCV20":
+                    case "BCV21":
+                    case "BCV22":
+                    case "BCV23":
+                    case "BCV24":
+                    case "BCV25":
+                    case "BCV26":
+                    case "BCV27":
+                    case "BCV28":
+                    case "BCV29":
+                    case "BCV30":
+                    case "TopicID":
+                        $page->setText($property_name, $property_value);
+                        break;
+    
+                    case "Book":
+                    case "Status":
+                    case "Language":
+                        $page->setSelect($property_name, $property_value);
+                        break;
+    
+                    case "Category":
+                        $category = array_filter($property_value);
+                        if (count($category) > 0) {
+                            $page->setMultiSelect($property_name, $property_value);
+                        }
+                        break;
+                }
+    
+                $updatedPage = Notion::pages()->update($page);
+                return response(['page' => $updatedPage]);
+            }
+        }
+        
         
         return response(['success'=> false,"message"=>'Property Value cannot be null']);
     }
@@ -662,8 +683,6 @@ class NotionController extends Controller
      */
     private function getBlockIncludingChilds($blockId, $contentType = null)
     {
-        // var_dump("=============getBlockIncludingChilds: \$blockId");
-        // var_dump($blockId);
         if ($contentType) {
             switch ($contentType) {
                 case 'page':
@@ -699,8 +718,6 @@ class NotionController extends Controller
         if (count($blocks)) {
             $index = 0;
             foreach ($blocks as $block) {
-                // var_dump("======foreach: \$block->getType()");
-                // var_dump($block->getType());
                 $contents[$index] = [];
 
                 switch($block->getType()) {
@@ -728,9 +745,6 @@ class NotionController extends Controller
                                 // }
                                 $syncedBlockId = $block->getRawContent()['synced_from']['block_id'];
                                 $contents[$index] = $this->getBlockIncludingChilds($syncedBlockId);
-
-                                // var_dump("\$syncedBlockId");
-                                // var_dump($syncedBlockId);
 
                                 if (count($contents[$index])) {
                                     $contents[$index] = $contents[$index][0];
