@@ -425,12 +425,12 @@
             $.ajax({
                 type: "PUT",
                 url: base_url + "/api/notion/" + block_id,
-                data: params,
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader('Authorization', token);
                 },
                 contentType: "application/json; charset=utf-8",
                 dataType : 'JSON',
+                data: JSON.stringify(params),
                 async: false,
             }).done(function(data) {
                 console.log(data)

@@ -657,7 +657,6 @@ class NotionController extends Controller
             }
         }
         
-        
         return response(['success'=> false,"message"=>'Property Value cannot be null']);
     }
 
