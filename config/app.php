@@ -229,4 +229,6 @@ return [
 
     ],
 
+    'notion_token' => env('NOTION_API_TOKEN'),
+
 ];

@@ -562,11 +562,13 @@ class NotionController extends Controller
             $blocks = Notion::block($pageId)->children()->asCollection()->toArray();
             try {
                 foreach($blocks as $block) {
-                    $blockRawResponse = Notion::block($id)->retrieve()->getRawResponse();
-                    $blockRawResponse["archived"] = true;
+                    // $blockRawResponse = Notion::block($id)->retrieve()->getRawResponse();
+                    // $blockRawResponse["archived"] = true;
     
-                    $newBlockEntity = new BlockEntity($blockRawResponse);
-                    $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
+                    // $newBlockEntity = new BlockEntity($blockRawResponse);
+                    // $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
+                    $path = "https://api.notion.com/v1/blocks/" . $block->getId();
+                    $result = $this->curl_del($path);
                 }
             }
             catch(Exception $e) {
@@ -898,5 +900,26 @@ class NotionController extends Controller
         }
         
         return $blocks;
+    }
+
+    public function curl_del($path, $json = '')
+    {
+        $url = $path;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $headers = [
+            'Authorization: Bearer ' . config('app.notion_token'),
+            'Notion-Version: 2021-05-13',
+        ];
+        
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $result = curl_exec($ch);
+        $result = json_decode($result);
+        curl_close($ch);
+
+        return $result;
     }
 }
