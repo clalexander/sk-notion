@@ -31,6 +31,7 @@ use FiveamCode\LaravelNotionApi\Entities\Blocks\Block as BlockEntity;
 use FiveamCode\LaravelNotionApi\Endpoints\Database;
 use Notion;
 use Exception;
+use Cache;
 
 class NotionController extends Controller
 {
@@ -125,6 +126,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
+                    Cache::store('file')->put('test',$result,1);
                     return response(['data' => $result]);
                 }
                 else {
