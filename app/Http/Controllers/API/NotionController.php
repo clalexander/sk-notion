@@ -140,7 +140,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::store('file')->put($cacheKey,$result,1);
+                    Cache::store('file')->put($cacheKey,$result,5);
                     return response(['data' => $result, 'cached' => false]);
                 }
                 else {
@@ -368,8 +368,13 @@ class NotionController extends Controller
 
             case 'quick_find':
                 $searchText = $request->search_text;
+                $cacheKey .= '_' . $searchText;
+                if (Cache::store('file')->has($cacheKey)) {
+                    return response(['data' => Cache::store('file')->get($cacheKey), 'cached' => true]);
+                }
                 $result = Notion::search($searchText)->query()->asCollection();
-                return response(['data' => $result]);
+                Cache::store('file')->put($cacheKey,$result,5);
+                return response(['data' => $result, 'cached' => false]);
                 break;
 
             default: 
