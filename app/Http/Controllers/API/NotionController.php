@@ -42,8 +42,12 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
+        $cacheKey = 'index';
+
         $limit = $request->limit ? $request->limit : 100;
+        $cacheKey .= '_' . $limit;
         $offset = $request->offset ? $request->offset : '';
+        $cacheKey .= '_' . $offset;
 
         $startCursor = null;
         if ($offset) {
@@ -54,14 +58,24 @@ class NotionController extends Controller
         $id = $request->id;
         $orderBy = $request->order_by;
 
+        $cacheKey .= '_' . $type;
+        $cacheKey .= '_' . $id;
+        $cacheKey .= '_' . $orderBy;
+
         switch($type) {
             // database
             case 'db':
                 $field_name = $request->field_name;
                 $keyword = $request->keyword;
                 
+                $cacheKey .= '_' . $field_name;
+                $cacheKey .= '_' . $keyword;
+                
                 if ($field_name && $keyword) {
                     $filters = new Collection();
+                    if (Cache::store('file')->has($cacheKey)) {
+                        return response(['data' => Cache::store('file')->get($cacheKey)]);
+                    }
 
                     switch($field_name) {
                         case "Heading":
@@ -126,7 +140,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::store('file')->put('test',$result,1);
+                    Cache::store('file')->put($cacheKey,$result,1);
                     return response(['data' => $result]);
                 }
                 else {
