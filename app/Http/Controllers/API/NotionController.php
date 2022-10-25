@@ -74,7 +74,7 @@ class NotionController extends Controller
                 if ($field_name && $keyword) {
                     $filters = new Collection();
                     if (Cache::store('file')->has($cacheKey)) {
-                        return response(['data' => Cache::store('file')->get($cacheKey)]);
+                        return response(['data' => Cache::store('file')->get($cacheKey), 'cached' => true]);
                     }
 
                     switch($field_name) {
@@ -141,7 +141,7 @@ class NotionController extends Controller
                         ->query()
                         ->asCollection();
                     Cache::store('file')->put($cacheKey,$result,1);
-                    return response(['data' => $result]);
+                    return response(['data' => $result, 'cached' => false]);
                 }
                 else {
                     $result = Notion::database($id)
