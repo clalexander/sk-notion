@@ -140,7 +140,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::set($cacheKey,$result,5);
+                    Cache::set($cacheKey,$result,60);
                     return response(['data' => $result, 'cached' => false]);
                 }
                 else {
@@ -370,11 +370,11 @@ class NotionController extends Controller
                 $searchText = $request->search_text;
                 $cacheKey .= '_' . $searchText;
                 if (Cache::has($cacheKey)) {
-                    return response(['data' => Cache::get($cacheKey), 'cached' => true]);
+                    return response(['data' => Cache::get($cacheKey), 'cached' => true, 'cache_key' =>$cacheKey]);
                 }
                 $result = Notion::search($searchText)->query()->asCollection();
-                Cache::set($cacheKey,$result,5);
-                return response(['data' => $result, 'cached' => false]);
+                Cache::set($cacheKey,$result,60);
+                return response(['data' => $result, 'cached' => false, 'cache_key' =>$cacheKey ]);
                 break;
 
             default: 
