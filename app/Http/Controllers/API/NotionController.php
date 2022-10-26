@@ -140,7 +140,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::put($cacheKey,$result,5);
+                    Cache::set($cacheKey,$result,5);
                     return response(['data' => $result, 'cached' => false]);
                 }
                 else {
@@ -373,7 +373,7 @@ class NotionController extends Controller
                     return response(['data' => Cache::get($cacheKey), 'cached' => true]);
                 }
                 $result = Notion::search($searchText)->query()->asCollection();
-                Cache::put($cacheKey,$result,5);
+                Cache::set($cacheKey,$result,5);
                 return response(['data' => $result, 'cached' => false]);
                 break;
 
