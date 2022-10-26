@@ -140,7 +140,7 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::set($cacheKey,$result,60);
+                    Cache::set($cacheKey,$result,3600);
                     return response(['data' => $result, 'cached' => false]);
                 }
                 else {
@@ -363,7 +363,7 @@ class NotionController extends Controller
                                 ->asCollection();
                         }
                     }
-                    Cache::set($cacheKey, $result, 60);
+                    Cache::set($cacheKey, $result, 3600);
                     return response(['data' => $result, 'cached' => false, 'cache_key' => $cacheKey]);
                 }
 
@@ -382,7 +382,7 @@ class NotionController extends Controller
                     return response(['data' => Cache::get($cacheKey), 'cached' => true, 'cache_key' =>$cacheKey]);
                 }
                 $result = Notion::search($searchText)->query()->asCollection();
-                Cache::set($cacheKey,$result,60);
+                Cache::set($cacheKey,$result,3600);
                 return response(['data' => $result, 'cached' => false, 'cache_key' =>$cacheKey ]);
                 break;
 
