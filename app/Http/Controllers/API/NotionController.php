@@ -344,6 +344,14 @@ class NotionController extends Controller
                 $blocks = json_decode($request->blocks);
 
                 if (!is_null($blocks) && count($blocks)) {
+
+                    $cacheKey .= '_' . $request->blocks;
+                    $cacheKey .= '_' . $request->include_child;
+
+                    if (Cache::has($cacheKey)) {
+                        return response(['data' => Cache::get($cacheKey), 'cached' => true]);
+                    }
+
                     $result = [];
                     foreach ($blocks as $block_id) {
                         if ($include_child) {
@@ -355,6 +363,7 @@ class NotionController extends Controller
                                 ->asCollection();
                         }
                     }
+                    Cache::set($cacheKey, $result, 60);
                     return response(['data' => $result]);
                 }
 
