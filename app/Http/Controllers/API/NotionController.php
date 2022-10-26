@@ -349,7 +349,7 @@ class NotionController extends Controller
                     $cacheKey .= '_' . $request->include_child;
 
                     if (Cache::has($cacheKey)) {
-                        return response(['data' => Cache::get($cacheKey), 'cached' => true]);
+                        return response(['data' => Cache::get($cacheKey), 'cached' => true, 'cache_key' => $cacheKey]);
                     }
 
                     $result = [];
@@ -364,7 +364,7 @@ class NotionController extends Controller
                         }
                     }
                     Cache::set($cacheKey, $result, 60);
-                    return response(['data' => $result]);
+                    return response(['data' => $result, 'cached' => false, 'cache_key' => $cacheKey]);
                 }
 
                 return response(['success' => false, 'message' => 'Blocks cannot be empty.']);
