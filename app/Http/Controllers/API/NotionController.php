@@ -296,7 +296,7 @@ class NotionController extends Controller
                         'has_more' => $hasMore, 
                         'next_cursor' => $nextCursor
                     ];
-                    Cache::set($cacheKey, $response, 60);
+                    Cache::set($cacheKey, $response, 3600);
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
 
@@ -322,7 +322,7 @@ class NotionController extends Controller
                         'has_more' => $hasMore,
                         'next_cursor' => $nextCursor
                     ];
-                    Cache::set($cacheKey, $response, 60);
+                    Cache::set($cacheKey, $response, 3600);
 
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
