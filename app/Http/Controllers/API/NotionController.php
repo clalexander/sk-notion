@@ -156,8 +156,16 @@ class NotionController extends Controller
             case "multi_filters":
                 $filter_str = $request->filters;
                 
+                $cacheKey .= '_' . $filter_str;
+                
+                if (Cache::has($cacheKey)) {
+                    $cachedResult = Cache::get($cacheKey);
+                    $cachedResult['cached'] = true;
+                    $cachedResult['cache_key'] = $cacheKey;
+                    return response($cachedResult);
+                }
+
                 if ($filter_str) {
-                    // dd($filter_str);
                     $filter_options = json_decode($filter_str);
                     $filters = new Collection();
 
@@ -282,12 +290,17 @@ class NotionController extends Controller
                     $hasMore = $rawResponse["has_more"];
 
                     $data = $result->asCollection();
-
-                    return response([
+                    
+                    $response = [
                         'data' => $data, 
                         'has_more' => $hasMore, 
                         'next_cursor' => $nextCursor
-                    ]);
+                    ];
+                    Cache::set($cacheKey, $response, 60);
+                    $response['cached'] = false;
+                    $response['cache_key'] = $cacheKey;
+
+                    return response($response);
                 }
                 else {
                     $result = Notion::database($id)
@@ -304,12 +317,16 @@ class NotionController extends Controller
                     $hasMore = $rawResponse["has_more"];
 
                     $data = $result->asCollection();
-
-                    return response([
+                    $response = [
                         'data' => $result,
                         'has_more' => $hasMore,
                         'next_cursor' => $nextCursor
-                    ]);
+                    ];
+                    Cache::set($cacheKey, $response, 60);
+
+                    $response['cached'] = false;
+                    $response['cache_key'] = $cacheKey;
+                    return response($response);
                 }
                 break;
 
