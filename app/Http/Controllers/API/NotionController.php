@@ -42,6 +42,8 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
+        $useCache = $request->use_cache ?? false;
+
         $cacheKey = 'index';
 
         $limit = $request->limit ? $request->limit : 100;
@@ -73,7 +75,7 @@ class NotionController extends Controller
                 
                 if ($field_name && $keyword) {
                     $filters = new Collection();
-                    if (Cache::has($cacheKey)) {
+                    if ($useCache && Cache::has($cacheKey)) {
                         return response(['data' => Cache::get($cacheKey), 'cached' => true]);
                     }
 
@@ -140,7 +142,10 @@ class NotionController extends Controller
                         // ->offset($startCursor)
                         ->query()
                         ->asCollection();
-                    Cache::set($cacheKey,$result,3600);
+
+                    if ($useCache) {
+                        Cache::set($cacheKey,$result,3600);
+                    }
                     return response(['data' => $result, 'cached' => false]);
                 }
                 else {
@@ -158,7 +163,7 @@ class NotionController extends Controller
                 
                 $cacheKey .= '_' . $filter_str;
                 
-                if (Cache::has($cacheKey)) {
+                if ($useCache && Cache::has($cacheKey)) {
                     $cachedResult = Cache::get($cacheKey);
                     $cachedResult['cached'] = true;
                     $cachedResult['cache_key'] = $cacheKey;
@@ -296,7 +301,10 @@ class NotionController extends Controller
                         'has_more' => $hasMore, 
                         'next_cursor' => $nextCursor
                     ];
-                    Cache::set($cacheKey, $response, 3600);
+
+                    if ($useCache) {
+                        Cache::set($cacheKey, $response, 3600);
+                    }
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
 
@@ -322,7 +330,10 @@ class NotionController extends Controller
                         'has_more' => $hasMore,
                         'next_cursor' => $nextCursor
                     ];
-                    Cache::set($cacheKey, $response, 3600);
+
+                    if ($useCache) {
+                        Cache::set($cacheKey, $response, 3600);
+                    }
 
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
@@ -365,7 +376,7 @@ class NotionController extends Controller
                     $cacheKey .= '_' . $request->blocks;
                     $cacheKey .= '_' . $request->include_child;
 
-                    if (Cache::has($cacheKey)) {
+                    if ($useCache && Cache::has($cacheKey)) {
                         return response(['data' => Cache::get($cacheKey), 'cached' => true, 'cache_key' => $cacheKey]);
                     }
 
@@ -380,7 +391,9 @@ class NotionController extends Controller
                                 ->asCollection();
                         }
                     }
-                    Cache::set($cacheKey, $result, 3600);
+                    if ($useCache) {
+                        Cache::set($cacheKey, $result, 3600);
+                    }
                     return response(['data' => $result, 'cached' => false, 'cache_key' => $cacheKey]);
                 }
 
@@ -395,11 +408,13 @@ class NotionController extends Controller
             case 'quick_find':
                 $searchText = $request->search_text;
                 $cacheKey .= '_' . $searchText;
-                if (Cache::has($cacheKey)) {
+                if ($useCache && Cache::has($cacheKey)) {
                     return response(['data' => Cache::get($cacheKey), 'cached' => true, 'cache_key' =>$cacheKey]);
                 }
                 $result = Notion::search($searchText)->query()->asCollection();
-                Cache::set($cacheKey,$result,3600);
+                if ($useCache) {
+                    Cache::set($cacheKey,$result,3600);
+                }
                 return response(['data' => $result, 'cached' => false, 'cache_key' =>$cacheKey ]);
                 break;
 
