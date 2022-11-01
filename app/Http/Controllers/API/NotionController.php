@@ -621,14 +621,10 @@ class NotionController extends Controller
         $type = $request->type;
 
         if (isset($type) && $type == 'delete_content') {
-            $blocks = Notion::block($pageId)->children()->asCollection()->toArray();
+            // $blocks = Notion::block($pageId)->children()->asCollection()->toArray();
+            $blocks = $this->getAllBlocks($pageId);
             try {
                 foreach($blocks as $block) {
-                    // $blockRawResponse = Notion::block($id)->retrieve()->getRawResponse();
-                    // $blockRawResponse["archived"] = true;
-    
-                    // $newBlockEntity = new BlockEntity($blockRawResponse);
-                    // $updatedBlock = Notion::block($id)->update(new BlockEntity($blockRawResponse));
                     $path = "https://api.notion.com/v1/blocks/" . $block->getId();
                     $result = $this->curl_del($path);
                 }
@@ -963,6 +959,27 @@ class NotionController extends Controller
         
         return $blocks;
     }
+
+    // /**
+    //  * Delete All Childs (recursive call due to page limit - 100)
+    //  */
+    // private function deleteAllChilds($blockId, $offset = null)
+    // {
+    //     $parent = Notion::block($blockId);
+
+    //     if (!is_null($offset)) {
+    //         $startCursor = new StartCursor($offset);
+    //         $parent = $parent->offset($startCursor);
+    //     }
+
+    //     $childBlocks = $parent->children()->asCollection()->toArray();
+
+    //     if (count($parent) == 100) {
+    //         $next_page
+    //     }
+
+    // }
+
 
     public function curl_del($path, $json = '')
     {
