@@ -899,7 +899,10 @@ class NotionController extends Controller
             }
         }
 
-        return array_unique($contents);
+        $uniqueContents = array_unique(array_map('json_encode', $contents));
+        $uniqueContents = array_map('json_decode', $uniqueContents);
+
+        return $uniqueContents;
     }
 
 
@@ -956,8 +959,11 @@ class NotionController extends Controller
             $next_page = $this->getAllBlocks($blockId, $blocks[99]->getId());
             $blocks = array_unique(array_merge($blocks, $next_page));
         }
+
+        $uniqueBlocks = array_unique(array_map('json_encode', $blocks));
+        $uniqueBlocks = array_map('json_decode', $uniqueBlocks);
         
-        return $blocks;
+        return $uniqueBlocks;
     }
 
     // /**
