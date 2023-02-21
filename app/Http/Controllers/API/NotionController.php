@@ -899,10 +899,15 @@ class NotionController extends Controller
             }
         }
 
-        $uniqueContents = array_unique(array_map('json_encode', $contents));
-        $uniqueContents = array_map('json_decode', $uniqueContents);
+        // $uniqueContents = array_unique(array_map('json_encode', $contents));
+        // $uniqueContents = array_map('json_decode', $uniqueContents);
 
-        return $uniqueContents;
+        // return $uniqueContents;
+
+        $idArray = array_map('getId', $contents);
+        $uniqueIds = array_unique($idArray);
+        $uniqueSubArrays = array_intersect_key($contents, $uniqueIds);
+        return $uniqueSubArrays;
     }
 
 
@@ -957,13 +962,19 @@ class NotionController extends Controller
         
         if (count($blocks) == 100) {
             $next_page = $this->getAllBlocks($blockId, $blocks[99]->getId());
-            $blocks = array_unique(array_merge($blocks, $next_page));
+            $blocks = array_merge($blocks, $next_page);
         }
 
-        $uniqueBlocks = array_unique(array_map('json_encode', $blocks));
-        $uniqueBlocks = array_map('json_decode', $uniqueBlocks);
+        $idArray = array_map('getId', $blocks);
+        $uniqueIds = array_unique($idArray);
+        $uniqueSubArrays = array_intersect_key($blocks, $uniqueIds);
+        return $uniqueSubArrays;
+        // return $blocks;
+
+        // $uniqueBlocks = array_unique(array_map('json_encode', $blocks));
+        // $uniqueBlocks = array_map('json_decode', $uniqueBlocks);
         
-        return $uniqueBlocks;
+        // return $uniqueBlocks;
     }
 
     // /**
@@ -1006,5 +1017,9 @@ class NotionController extends Controller
         curl_close($ch);
 
         return $result;
+    }
+
+    function getId($subArray) {
+        return $subArray['id'];
     }
 }
