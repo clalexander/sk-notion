@@ -899,7 +899,7 @@ class NotionController extends Controller
             }
         }
 
-        return $contents;
+        return array_unique($contents);
     }
 
 
