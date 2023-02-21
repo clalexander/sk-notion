@@ -954,7 +954,7 @@ class NotionController extends Controller
         
         if (count($blocks) == 100) {
             $next_page = $this->getAllBlocks($blockId, $blocks[99]->getId());
-            $blocks = array_merge($blocks, $next_page);
+            $blocks = array_unique(array_merge($blocks, $next_page));
         }
         
         return $blocks;
