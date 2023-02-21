@@ -965,11 +965,11 @@ class NotionController extends Controller
             $blocks = array_merge($blocks, $next_page);
         }
 
-        $idArray = array_map('getId', $blocks);
-        $uniqueIds = array_unique($idArray);
-        $uniqueSubArrays = array_intersect_key($blocks, $uniqueIds);
-        return $uniqueSubArrays;
-        // return $blocks;
+        // $idArray = array_map('getId', $blocks);
+        // $uniqueIds = array_unique($idArray);
+        // $uniqueSubArrays = array_intersect_key($blocks, $uniqueIds);
+        // return $uniqueSubArrays;
+        return $blocks;
 
         // $uniqueBlocks = array_unique(array_map('json_encode', $blocks));
         // $uniqueBlocks = array_map('json_decode', $uniqueBlocks);
