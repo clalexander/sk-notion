@@ -903,8 +903,9 @@ class NotionController extends Controller
         // $uniqueContents = array_map('json_decode', $uniqueContents);
 
         // return $uniqueContents;
-
-        $idArray = array_map('getId', $contents);
+        $idArray = array_map(function($subArray) {
+            return $subArray['id'];
+        }, $contents);
         $uniqueIds = array_unique($idArray);
         $uniqueSubArrays = array_intersect_key($contents, $uniqueIds);
         return $uniqueSubArrays;
