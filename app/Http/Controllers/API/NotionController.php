@@ -908,7 +908,7 @@ class NotionController extends Controller
         }, $contents);
         $uniqueIds = array_unique($idArray);
         $uniqueSubArrays = array_intersect_key($contents, $uniqueIds);
-        return $uniqueSubArrays;
+        return (array) $uniqueSubArrays;
     }
 
 
