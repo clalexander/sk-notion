@@ -42,7 +42,7 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
-        Cache::flush();
+        // Cache::flush();
         $useCache = $request->use_cache ?? false;
 
         $cacheKey = 'index';
@@ -905,8 +905,6 @@ class NotionController extends Controller
         $uniqueIds = array_unique($idArray);
         $uniqueSubArrays = array_intersect_key($contents, $uniqueIds);
         return array_values((array) $uniqueSubArrays);
-        return json_decode(json_encode($uniqueSubArrays), true);
-        return array_values(get_object_vars($uniqueSubArrays));
     }
 
 
