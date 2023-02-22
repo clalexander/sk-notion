@@ -899,7 +899,6 @@ class NotionController extends Controller
                 $index ++;
             }
         }
-        return $contents;
         $idArray = array_map(function($subArray) {
             return $subArray['id'];
         }, $contents);
