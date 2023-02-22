@@ -42,6 +42,7 @@ class NotionController extends Controller
      */
     public function index(Request $request)
     {
+        Cache::flush();
         $useCache = $request->use_cache ?? false;
 
         $cacheKey = 'index';
@@ -898,11 +899,7 @@ class NotionController extends Controller
                 $index ++;
             }
         }
-
-        // $uniqueContents = array_unique(array_map('json_encode', $contents));
-        // $uniqueContents = array_map('json_decode', $uniqueContents);
-
-        // return $uniqueContents;
+        return $contents;
         $idArray = array_map(function($subArray) {
             return $subArray['id'];
         }, $contents);
@@ -967,16 +964,7 @@ class NotionController extends Controller
             $blocks = array_merge($blocks, $next_page);
         }
 
-        // $idArray = array_map('getId', $blocks);
-        // $uniqueIds = array_unique($idArray);
-        // $uniqueSubArrays = array_intersect_key($blocks, $uniqueIds);
-        // return $uniqueSubArrays;
         return $blocks;
-
-        // $uniqueBlocks = array_unique(array_map('json_encode', $blocks));
-        // $uniqueBlocks = array_map('json_decode', $uniqueBlocks);
-        
-        // return $uniqueBlocks;
     }
 
     // /**
