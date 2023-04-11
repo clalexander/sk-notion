@@ -419,6 +419,196 @@ class NotionController extends Controller
                 return response(['data' => $result, 'cached' => false, 'cache_key' =>$cacheKey ]);
                 break;
 
+            case 'query':
+                $filter_str = $request->filters;
+                
+                $cacheKey .= '_' . $filter_str;
+                
+                if ($useCache && Cache::has($cacheKey)) {
+                    $cachedResult = Cache::get($cacheKey);
+                    $cachedResult['cached'] = true;
+                    $cachedResult['cache_key'] = $cacheKey;
+                    return response($cachedResult);
+                }
+
+                if ($filter_str) {
+                    $filter_options = json_decode($filter_str);
+                    $filters = new Collection();
+
+                    // check if any duplicated filter_options, if then separate them as multiple filters
+                    $filter_arr = $this->processFilters($filter_options);
+
+                    foreach ($filter_options as $key => $value) {
+                        switch($key) {
+                            // case "Book":
+                            // case "Status":
+                            // case "Language":
+                            //     if (is_array($value) && count($value) > 0) {
+                            //         foreach ($value as $subVal) {
+                            //             $filters->add(
+                            //                 Filter::rawFilter(
+                            //                     $key, 
+                            //                     [
+                            //                         'select' => [
+                            //                             'equals' => $subVal
+                            //                         ]
+                            //                     ]
+                            //                 )
+                            //             );
+                            //         }
+                            //     }
+                            //     else {
+                            //         $filters->add(
+                            //             Filter::rawFilter(
+                            //                 $key, 
+                            //                 [
+                            //                     'select' => [
+                            //                         'equals' => $value
+                            //                     ]
+                            //                 ]
+                            //             )
+                            //         );
+                            //     }
+                            //     // select
+                            //     break;
+
+                            // case "Category":
+                            //     // multi-select
+                            //     if (is_array($value) && count($value) > 0) {
+                            //         foreach ($value as $subVal) {
+                            //             $filters->add(
+                            //                 Filter::rawFilter(
+                            //                     $key, 
+                            //                     [
+                            //                         'multi_select' => [
+                            //                             'contains' => $subVal
+                            //                         ]
+                            //                     ]
+                            //                 )
+                            //             );
+                            //         }
+                            //     }
+                            //     else {
+                            //         $filters->add(
+                            //             Filter::rawFilter(
+                            //                 $key, 
+                            //                 [
+                            //                     'multi_select' => [
+                            //                         'contains' => $value
+                            //                     ]
+                            //                 ]
+                            //             )
+                            //         );
+                            //     }
+                            //     break;
+
+                            default:
+                                if (is_array($value) && count($value) > 0) {
+                                    foreach ($value as $subVal) {
+                                        $filters->add(
+                                            Filter::rawFilter(
+                                                $key, 
+                                                [
+                                                    'rich_text' => [
+                                                        'contains' => $subVal
+                                                    ]
+                                                ]
+                                            )
+                                        );
+                                    }
+                                }
+                                else {
+                                    $filters->add(
+                                        Filter::rawFilter(
+                                            $key, 
+                                            [
+                                                'rich_text' => [
+                                                    'contains' => $value
+                                                ]
+                                            ]
+                                        )
+                                    );
+                                }
+                                break;
+                        }
+                    }
+
+                    $result = Notion::database($id)
+                        ->filterBy($filters);
+
+                    if ($orderBy) {
+                        $sortings = new Collection();
+                        $sortings->add(
+                            Sorting::propertySort($orderBy, 'ascending')
+                        );
+                        $result = $result->sortBy($sortings);
+                    }
+                    $result = $result->limit($limit);
+
+                    if ($startCursor) {
+                        $result = $result->offset($startCursor);
+                    }
+                    $result = $result->query();
+
+                    $rawResponse = $result->getRawResponse();
+
+                    $nextCursor = $rawResponse["next_cursor"];
+                    $hasMore = $rawResponse["has_more"];
+
+                    $data = $result->asCollection();
+                    foreach ($data as $block) {
+                        if (isset($block->responseData->properties->Book) && isset($block->responseData->properties->Book->relation) && count($block->responseData->properties->Book->relation)) {
+                            $bookId = $block->responseData->properties->Book->relation[0]->id;
+                            $bookDetails = Notion::pages()->find($bookId);
+                            $block->responseData->properties->Book["details"] = $bookDetails;
+                        }
+                    }
+                    
+                    $response = [
+                        'data' => $data, 
+                        'has_more' => $hasMore, 
+                        'next_cursor' => $nextCursor
+                    ];
+
+                    if ($useCache) {
+                        Cache::set($cacheKey, $response, 3600);
+                    }
+                    $response['cached'] = false;
+                    $response['cache_key'] = $cacheKey;
+
+                    return response($response);
+                }
+                else {
+                    $result = Notion::database($id)
+                        ->limit($limit);
+
+                    if ($startCursor) {
+                        $result = $result->offset($startCursor);
+                    }
+                    $result = $result->query();
+
+                    $rawResponse = $result->getRawResponse();
+
+                    $nextCursor = $rawResponse["next_cursor"];
+                    $hasMore = $rawResponse["has_more"];
+
+                    $data = $result->asCollection();
+                    $response = [
+                        'data' => $result,
+                        'has_more' => $hasMore,
+                        'next_cursor' => $nextCursor
+                    ];
+
+                    if ($useCache) {
+                        Cache::set($cacheKey, $response, 3600);
+                    }
+
+                    $response['cached'] = false;
+                    $response['cache_key'] = $cacheKey;
+                    return response($response);
+                }
+                break;
+
             default: 
                 break;
         }
