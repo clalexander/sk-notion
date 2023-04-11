@@ -556,11 +556,11 @@ class NotionController extends Controller
                     $hasMore = $rawResponse["has_more"];
 
                     $data = $result->asCollection();
-                    foreach ($data as $block) {
+                    foreach ($data as &$block) {
                         if (isset($block->responseData->properties->Book) && isset($block->responseData->properties->Book->relation) && count($block->responseData->properties->Book->relation)) {
                             $bookId = $block->responseData->properties->Book->relation[0]->id;
                             $bookDetails = Notion::pages()->find($bookId);
-                            $block->responseData->properties->Book["details"] = $bookDetails;
+                            $block->responseData->properties->Book->details = $bookDetails;
                         }
                     }
                     
