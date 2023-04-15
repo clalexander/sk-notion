@@ -24,4 +24,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
-Route::apiResource('notion', NotionController::class)->middleware('auth:api');
+Route::apiResource('notion', NotionController::class)->only(['index', 'store', 'show', 'update', 'destroy'])->middleware('auth:api');
