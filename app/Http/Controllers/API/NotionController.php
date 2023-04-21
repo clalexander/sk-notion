@@ -84,7 +84,7 @@ class NotionController extends Controller
                         case "Heading":
                             $filters->add(
                                 Filter::rawFilter(
-                                    "﻿Heading",
+                                    "?Heading",
                                     [
                                         'rich_text' => [
                                             'contains' => $keyword
@@ -555,12 +555,13 @@ class NotionController extends Controller
                     $nextCursor = $rawResponse["next_cursor"];
                     $hasMore = $rawResponse["has_more"];
 
-                    $data = $result->asCollection();
+                    // $data = $result->asCollection();
+                    $data = $rawResponse["results"];
                     foreach ($data as &$block) {
-                        if (isset($block->responseData->properties->Book) && isset($block->responseData->properties->Book->relation) && count($block->responseData->properties->Book->relation)) {
-                            $bookId = $block->responseData->properties->Book->relation[0]->id;
-                            $bookDetails = Notion::pages()->find($bookId);
-                            $block->responseData->properties->Book->details = $bookDetails;
+                        if (isset($block["properties"]["Book"]) && isset($block["properties"]["Book"]["relation"]) && count($block["properties"]["Book"]["relation"])) {
+                            $bookId = $block["properties"]["Book"]["relation"][0]["id"];
+                            $bookDetails = Notion::pages()->find($bookId)->getRawResponse();
+                            $block["properties"]["Book"]["details"] = $bookDetails;
                         }
                     }
                     
@@ -635,7 +636,7 @@ class NotionController extends Controller
                 $page = new Page();
 
                 if (array_key_exists("Heading", $pageOptions) && $pageOptions["Heading"]) {
-                    $page->setTitle("﻿Heading", $pageOptions["Heading"]);
+                    $page->setTitle("?Heading", $pageOptions["Heading"]);
                 }
                 if (array_key_exists("HeadingOrder", $pageOptions) && $pageOptions["HeadingOrder"]) {
                     $page->setText("HeadingOrder", $pageOptions["HeadingOrder"]);
@@ -832,7 +833,7 @@ class NotionController extends Controller
     
                 switch($property_name) {
                     case "Heading":
-                            $page->setTitle("﻿Heading", $property_value);
+                            $page->setTitle("?Heading", $property_value);
                         break;
     
                     case "Title":
@@ -1199,5 +1200,44 @@ class NotionController extends Controller
 
     function getId($subArray) {
         return $subArray['id'];
+    }
+
+    /**
+     * Generate JSON (endpoint for cron: once a day)
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function generateJSON() 
+    {
+        $dbId = "1c0177073ec846959efe002c9dd723e8";
+        $result = $this->getNextPage($dbId);
+
+        var_dump($result);
+        
+        // $dbId = "1c0177073ec846959efe002c9dd723e8";
+        // $result = $this->getNextPage($dbId);
+    }
+
+    /**
+     * Recursive call to get all blocks from the database
+     */
+    private function getNextPage($dbId, $offset = null)
+    {
+        $blocks = Notion::database($dbId);
+
+        if (!is_null($offset)) {
+            $startCursor = new StartCursor($offset);
+            $blocks = $blocks->offset($startCursor);
+        }
+        
+        $blocks = $blocks->query()->asCollection()->toArray();
+
+        if (count($blocks) == 100) {
+            $next_page = $this->getNextPage($dbId, $blocks[99]->getId());
+            $blocks = array_merge($blocks, $next_page);
+        }
+
+        return $blocks;
     }
 }

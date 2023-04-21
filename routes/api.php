@@ -25,3 +25,4 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 Route::apiResource('notion', NotionController::class)->middleware('auth:api');
+Route::get('generate_json', [NotionController::class, 'generateJSON']);
