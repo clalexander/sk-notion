@@ -1211,6 +1211,9 @@ class NotionController extends Controller
      */
     public function generateJSON() 
     {
+        /**
+         * 1st db (annotations)
+         * */ 
         $dbId = "1c0177073ec846959efe002c9dd723e8";
         $records = $this->getNextPage($dbId);
 
@@ -1226,6 +1229,23 @@ class NotionController extends Controller
         // $bcvString = str_replace("**", "*", $bcvString);
         // dd($bcvString);
         $path = 'assets/annotations.txt';
+        Storage::disk('public')->put($path, $bcvString);
+
+        /**
+         * 2nd db (entries)
+         * */ 
+        $dbId = "2251110649bb4e80b04d65c24a2643f4";
+        $records = $this->getNextPage($dbId);
+
+        $bcvString = "";
+        foreach ($records as $record) {
+            if (count($record["properties"]["BCV1"]["rich_text"])) {
+                // var_dump($record["properties"]["BCV1"]["rich_text"][0]["plain_text"]);
+                $bcvString .= $record["properties"]["BCV1"]["rich_text"][0]["plain_text"];
+            }
+        }
+
+        $path = 'assets/entries.txt';
         Storage::disk('public')->put($path, $bcvString);
     }
 
