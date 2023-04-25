@@ -29,6 +29,7 @@ use FiveamCode\LaravelNotionApi\Entities\Blocks\Video;
 use FiveamCode\LaravelNotionApi\Entities\Blocks\Block as BlockEntity;
 
 use FiveamCode\LaravelNotionApi\Endpoints\Database;
+use Illuminate\Support\Facades\Storage;
 use Notion;
 use Exception;
 use Cache;
@@ -1211,12 +1212,21 @@ class NotionController extends Controller
     public function generateJSON() 
     {
         $dbId = "1c0177073ec846959efe002c9dd723e8";
-        $result = $this->getNextPage($dbId);
+        $records = $this->getNextPage($dbId);
 
-        var_dump($result);
-        
-        // $dbId = "1c0177073ec846959efe002c9dd723e8";
-        // $result = $this->getNextPage($dbId);
+        // dd($records);
+        $bcvString = "";
+        foreach ($records as $record) {
+            if (count($record["properties"]["BCV1"]["rich_text"])) {
+                // var_dump($record["properties"]["BCV1"]["rich_text"][0]["plain_text"]);
+                $bcvString .= $record["properties"]["BCV1"]["rich_text"][0]["plain_text"];
+            }
+        }
+
+        // $bcvString = str_replace("**", "*", $bcvString);
+        // dd($bcvString);
+        $path = 'assets/annotations.txt';
+        Storage::disk('public')->put($path, $bcvString);
     }
 
     /**
@@ -1231,10 +1241,11 @@ class NotionController extends Controller
             $blocks = $blocks->offset($startCursor);
         }
         
-        $blocks = $blocks->query()->asCollection()->toArray();
-
+        $blocks = $blocks->query()->getRawResponse();
+        $blocks = $blocks["results"];
+        
         if (count($blocks) == 100) {
-            $next_page = $this->getNextPage($dbId, $blocks[99]->getId());
+            $next_page = $this->getNextPage($dbId, $blocks[99]["id"]);
             $blocks = array_merge($blocks, $next_page);
         }
 
