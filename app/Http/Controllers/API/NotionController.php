@@ -561,8 +561,17 @@ class NotionController extends Controller
                     foreach ($data as &$block) {
                         if (isset($block["properties"]["Book"]) && isset($block["properties"]["Book"]["relation"]) && count($block["properties"]["Book"]["relation"])) {
                             $bookId = $block["properties"]["Book"]["relation"][0]["id"];
-                            $bookDetails = Notion::pages()->find($bookId)->getRawResponse();
-                            $block["properties"]["Book"]["details"] = $bookDetails;
+                            if (isset($bookId) && !is_null($bookId)) {
+                                $bookDetails = Notion::pages()->find($bookId)->getRawResponse();
+                                $block["properties"]["Book"]["details"] = $bookDetails;
+                            }
+                        }
+                        if (isset($block["properties"]["Essays"]) && isset($block["properties"]["Essays"]["relation"]) && count($block["properties"]["Essays"]["relation"])) {
+                            $essaysId = $block["properties"]["Essays"]["relation"][0]["id"];
+                            if (isset($essaysId) && !is_null($essaysId)) {
+                                $essaysDetails = Notion::pages()->find($essaysId)->getRawResponse();
+                                $block["properties"]["Essays"]["details"] = $essaysDetails;
+                            }
                         }
                     }
                     
