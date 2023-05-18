@@ -566,11 +566,11 @@ class NotionController extends Controller
                                 $block["properties"]["Book"]["details"] = $bookDetails;
                             }
                         }
-                        if (isset($block["properties"]["Essays"]) && isset($block["properties"]["Essays"]["relation"]) && count($block["properties"]["Essays"]["relation"])) {
-                            $essaysId = $block["properties"]["Essays"]["relation"][0]["id"];
-                            if (isset($essaysId) && !is_null($essaysId)) {
-                                $essaysDetails = Notion::pages()->find($essaysId)->getRawResponse();
-                                $block["properties"]["Essays"]["details"] = $essaysDetails;
+                        if (isset($block["properties"]["Essay"]) && isset($block["properties"]["Essay"]["relation"]) && count($block["properties"]["Essay"]["relation"])) {
+                            $essayId = $block["properties"]["Essay"]["relation"][0]["id"];
+                            if (isset($essayId) && !is_null($essayId)) {
+                                $essayDetails = Notion::pages()->find($essayId)->getRawResponse();
+                                $block["properties"]["Essay"]["details"] = $essayDetails;
                             }
                         }
                     }
