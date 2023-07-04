@@ -3,6 +3,7 @@
 if (file_exists(__DIR__.'/../.htaccess')) {
     $htaccess = file_get_contents(__DIR__.'/../.htaccess');
     if (strpos($htaccess, 'Header set Access-Control-Allow-Origin') !== false) {
+	var_dump("testing..");exit();
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Origin, Content-Type, Authorization');

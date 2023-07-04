@@ -573,6 +573,13 @@ class NotionController extends Controller
                                 $block["properties"]["Essay"]["details"] = $essayDetails;
                             }
                         }
+                        if (isset($block["properties"]["Article"]) && isset($block["properties"]["Article"]["relation"]) && count($block["properties"]["Article"]["relation"])) {
+                            $articleId = $block["properties"]["Article"]["relation"][0]["id"];
+                            if (isset($articleId) && !is_null($articleId)) {
+                                $articleDetails = Notion::pages()->find($articleId)->getRawResponse();
+                                $block["properties"]["Article"]["details"] = $articleDetails;
+                            }
+                        }
                     }
                     
                     $response = [
