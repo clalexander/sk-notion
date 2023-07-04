@@ -425,7 +425,9 @@ class NotionController extends Controller
                 
                 $cacheKey .= '_' . $filter_str;
                 
-                if ($useCache && Cache::has($cacheKey)) {
+                $cacheKeyForHomePage = 'index_100__query_1c0177073ec846959efe002c9dd723e8_Passage_{\"BCV1\": [\"*1.1.1*\", \"*1.1*\"]}';
+
+                if (($useCache || $cacheKey == $cacheKeyForHomePage) && Cache::has($cacheKey)) {
                     $cachedResult = Cache::get($cacheKey);
                     $cachedResult['cached'] = true;
                     $cachedResult['cache_key'] = $cacheKey;
@@ -590,6 +592,10 @@ class NotionController extends Controller
 
                     if ($useCache) {
                         Cache::set($cacheKey, $response, 3600);
+                    }
+                    if ($cacheKey == $cacheKeyForHomePage) {
+                        Cache::forget($cacheKey);
+                        Cache::rememberForever($cacheKey, $response);
                     }
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
