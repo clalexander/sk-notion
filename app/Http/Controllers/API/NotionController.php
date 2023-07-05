@@ -422,12 +422,13 @@ class NotionController extends Controller
 
             case 'query':
                 $filter_str = $request->filters;
+                $flushHomepageCache = $request->flush_homepage_cache;
                 
                 $cacheKey .= '_' . $filter_str;
                 
                 $cacheKeyForHomePage = 'index_100__query_1c0177073ec846959efe002c9dd723e8_Passage_{\"BCV1\": [\"*1.1.1*\", \"*1.1*\"]}';
 
-                if (($useCache || $cacheKey == $cacheKeyForHomePage) && Cache::has($cacheKey)) {
+                if (($useCache || $cacheKey == $cacheKeyForHomePage) && Cache::has($cacheKey) && $flushHomepageCache !== true) {
                     $cachedResult = Cache::get($cacheKey);
                     $cachedResult['cached'] = true;
                     $cachedResult['cache_key'] = $cacheKey;
