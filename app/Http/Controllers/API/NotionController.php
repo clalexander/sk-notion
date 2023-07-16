@@ -594,12 +594,14 @@ class NotionController extends Controller
                         'next_cursor' => $nextCursor
                     ];
 
-                    if ($useCache) {
-                        Cache::set($cacheKey, $response, 3600);
-                    }
                     if ($cacheKey == $cacheKeyForHomePage) {
                         Cache::forget($cacheKey);
                         Cache::rememberForever($cacheKey, $response);
+                    }
+                    else {    
+                        if ($useCache) {
+                            Cache::set($cacheKey, $response, 3600);
+                        }
                     }
                     $response['cached'] = false;
                     $response['cache_key'] = $cacheKey;
