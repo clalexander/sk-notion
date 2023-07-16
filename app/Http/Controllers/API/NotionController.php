@@ -44,7 +44,9 @@ class NotionController extends Controller
     public function index(Request $request)
     {
         // Cache::flush();
-        $useCache = $request->use_cache ?? false;
+
+//        $useCache = $request->use_cache ?? false;
+        $useCache = isset($request->use_cache) && $request->use_cache;
 
         $cacheKey = 'index';
 
@@ -1272,6 +1274,24 @@ class NotionController extends Controller
         }
 
         $path = 'assets/entries.txt';
+        Storage::disk('public')->put($path, $bcvString);
+
+
+        /**
+         * 3rd db (ixtheo)
+         * */
+        $dbId = "e59bf93f99d44058b23278de9aff4646";
+        $records = $this->getNextPage($dbId);
+
+        $bcvString = "";
+        foreach ($records as $record) {
+            if (count($record["properties"]["BCV1"]["rich_text"])) {
+                // var_dump($record["properties"]["BCV1"]["rich_text"][0]["plain_text"]);
+                $bcvString .= $record["properties"]["BCV1"]["rich_text"][0]["plain_text"];
+            }
+        }
+
+        $path = 'assets/ixtheo.txt';
         Storage::disk('public')->put($path, $bcvString);
     }
 
