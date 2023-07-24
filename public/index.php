@@ -1,6 +1,7 @@
 <?php
 
-if (file_exists(__DIR__.'/../.htaccess')) {
+
+/*if (file_exists(__DIR__.'/../.htaccess')) {
     $htaccess = file_get_contents(__DIR__.'/../.htaccess');
     if (strpos($htaccess, 'Header set Access-Control-Allow-Origin') !== false) {
 	var_dump("testing..");exit();
@@ -8,7 +9,7 @@ if (file_exists(__DIR__.'/../.htaccess')) {
         header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
         header('Access-Control-Allow-Headers: Origin, Content-Type, Authorization');
     }
-}
+}*/
 
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;

@@ -26,3 +26,5 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::apiResource('notion', NotionController::class)->middleware('auth:api');
 Route::get('generate_json', [NotionController::class, 'generateJSON']);
+Route::get('/json/annotations', [NotionController::class, 'getAnnotationsJson']);
+Route::get('/json/entries', [NotionController::class, 'getEntriesJson']);

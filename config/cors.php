@@ -16,11 +16,11 @@ return [
     */
 
     // 'paths' => ['api/*', 'storage/*', 'public/*'],
-    'paths' => [],
+    'paths' => ['api/*','storage/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://portal.eezra.com', 'https://eezra.com'],
 
     'allowed_origins_patterns' => [],
 

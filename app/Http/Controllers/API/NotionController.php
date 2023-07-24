@@ -1319,4 +1319,29 @@ class NotionController extends Controller
 
         return $blocks;
     }
+
+    public function getAnnotationsJson()
+    {
+        $filePath = 'public/assets/annotations.txt';
+        
+        if (Storage::exists($filePath)) {
+            $content = Storage::get($filePath);
+            return response($content, 200)->header('Content-Type', 'text/plain');
+        } else {
+            abort(404, 'File not found.');
+        }
+    }
+
+    public function getEntriesJson()
+    {
+        $filePath = 'public/assets/entries.txt';
+
+        if (Storage::exists($filePath)) {
+            $content = Storage::get($filePath);
+            return response($content, 200)->header('Content-Type', 'text/plain');
+        } else {
+            abort(404, 'File not found.');
+        }
+    }
+
 }

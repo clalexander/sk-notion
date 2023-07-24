@@ -4,6 +4,11 @@
     </IfModule>
 
     RewriteEngine On
+    RewriteCond %{HTTP_REFERER} !^https?://portal\.eezra\.com/ [NC]
+    RewriteCond %{HTTP_REFERER} !^http?://truechurch\.net/ [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://bible\.tjc\.org/ [NC]
+    RewriteCond %{HTTP_REFERER} !^https?://bible1\.tjc\.org/ [NC]
+    RewriteRule ^ - [R=403]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
@@ -19,10 +24,20 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 
+    #RewriteCond %{HTTP_REFERER} !^https?://portal.eezra.com\.com/ [NC]
+    #RewriteRul ^ - [R=403]
+
     # Header always set Access-Control-Allow-Origin "*"
 
-    Header set Access-Control-Allow-Origin "*"
-    Header set Access-Control-Allow-Methods "POST, GET, OPTIONS, PUT, DELETE"
-    Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding"
+# Set environment variable for allowed domains
+#SetEnvIf Host ^eezra\.com$ ALLOWED_DOMAIN
+#SetEnvIf Host ^portal\.eezra\.com$ ALLOWED_DOMAIN
+#SetEnvIf Host ^anotherdomain\.com$ ALLOWED_DOMAIN
+#SetEnvIf Host ^sub\.anotherdomain\.com$ ALLOWED_DOMAIN
+
+#    Header set Access-Control-Allow-Origin "*"
+#Header set Access-Control-Allow-Origin "%{ALLOWED_DOMAIN}e" env=ALLOWED_DOMAIN
+#    Header set Access-Control-Allow-Methods "POST, GET, OPTIONS, PUT, DELETE"
+#    Header set Access-Control-Allow-Headers "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding"
 
 </IfModule>
