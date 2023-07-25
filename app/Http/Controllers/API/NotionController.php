@@ -645,7 +645,7 @@ class NotionController extends Controller
                 break;
         }
 
-        return response(['test' => "YAY!", 'data' => $request->all()]);
+        return response(['message' => "There's no matching type.", 'data' => $request->all()]);
     }
 
     /**
