@@ -20,7 +20,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://portal.eezra.com', 'https://eezra.com'],
+    'allowed_origins' => ['https://portal.eezra.com', 'https://eezra.com', 'http://truechurch.net', 'https://bible.tjc.org', 'https://bible1.tjc.org'],
 
     'allowed_origins_patterns' => [],
 
